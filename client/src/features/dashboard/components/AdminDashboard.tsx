@@ -27,6 +27,8 @@ import { getComplaints } from '../../complaints/services/complaint.service'
 import AttendanceSummaryPanel from '../../attendance/components/AttendanceSummaryPanel'
 import { getAttendance } from '../../attendance/services/attendance.service'
 import AITimetableGeneratorPanel from '../../ai-timetable/components/AITimetableGeneratorPanel'
+import ReportsOverviewPanel from '../../reports/components/ReportsOverviewPanel'
+import { getOverviewReport } from '../../reports/services/report.service'
 import type {
   TimetableConflictReport,
   TimetableEntry,
@@ -34,6 +36,7 @@ import type {
 import type { Announcement } from '../../announcements/types/announcement.types'
 import type { Complaint } from '../../complaints/types/complaint.types'
 import type { Attendance } from '../../attendance/types/attendance.types'
+import type { OverviewReport } from '../../reports/types/report.types'
 
 type AdminUser = {
   _id: string
@@ -54,6 +57,7 @@ const AdminDashboard = () => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [complaints, setComplaints] = useState<Complaint[]>([])
   const [attendance, setAttendance] = useState<Attendance[]>([])
+  const [report, setReport] = useState<OverviewReport | null>(null)
   const [conflictReport, setConflictReport] =
     useState<TimetableConflictReport | null>(null)
   const [editingEntry, setEditingEntry] = useState<TimetableEntry | null>(null)
@@ -72,6 +76,15 @@ const AdminDashboard = () => {
     }
   }
 
+  const refreshReport = async () => {
+    try {
+      const result = await getOverviewReport()
+      setReport(result)
+    } catch {
+      setReport(null)
+    }
+  }
+
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
@@ -82,6 +95,7 @@ const AdminDashboard = () => {
           announcementResult,
           complaintResult,
           attendanceResult,
+          reportResult,
         ] = await Promise.all([
           getAdminUsers(),
           getAllTimetables(),
@@ -89,6 +103,7 @@ const AdminDashboard = () => {
           getAnnouncements(),
           getComplaints(),
           getAttendance(),
+          getOverviewReport(),
         ])
 
         setData(usersResult)
@@ -97,6 +112,7 @@ const AdminDashboard = () => {
         setAnnouncements(announcementResult)
         setComplaints(complaintResult)
         setAttendance(attendanceResult)
+        setReport(reportResult)
       } catch {
         setError('Unable to load admin dashboard data.')
       } finally {
@@ -109,6 +125,7 @@ const AdminDashboard = () => {
 
   const handleAnnouncementCreated = (announcement: Announcement) => {
     setAnnouncements((prev) => [announcement, ...prev])
+    refreshReport()
   }
 
   const handleComplaintUpdated = (updatedComplaint: Complaint) => {
@@ -117,6 +134,7 @@ const AdminDashboard = () => {
         item._id === updatedComplaint._id ? updatedComplaint : item
       )
     )
+    refreshReport()
   }
 
   const handleAttendanceUpdated = (updatedAttendance: Attendance) => {
@@ -125,16 +143,19 @@ const AdminDashboard = () => {
         item._id === updatedAttendance._id ? updatedAttendance : item
       )
     )
+    refreshReport()
   }
 
   const handleAITimetableSaved = (entries: TimetableEntry[]) => {
     setTimetables((prev) => [...entries, ...prev])
     refreshConflictReport()
+    refreshReport()
   }
 
   const handleTimetableCreated = (entry: TimetableEntry) => {
     setTimetables((prev) => [entry, ...prev])
     refreshConflictReport()
+    refreshReport()
   }
 
   const handleTimetableEdit = (entry: TimetableEntry) => {
@@ -149,6 +170,7 @@ const AdminDashboard = () => {
 
     setEditingEntry(null)
     refreshConflictReport()
+    refreshReport()
   }
 
   const handleCancelEdit = () => {
@@ -175,6 +197,7 @@ const AdminDashboard = () => {
       }
 
       refreshConflictReport()
+      refreshReport()
     } catch {
       alert('Unable to delete timetable entry.')
     } finally {
@@ -209,8 +232,8 @@ const AdminDashboard = () => {
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate">
           Manage users, rooms, campus resources, announcements, complaints,
-          attendance records, timetable records, AI timetable generation, AI
-          conflict reports, and platform-level operations.
+          attendance records, timetable records, AI timetable generation,
+          reports, analytics, AI conflict reports, and platform-level operations.
         </p>
       </section>
 
@@ -257,6 +280,11 @@ const AdminDashboard = () => {
           icon={Activity}
         />
       </section>
+
+      <ReportsOverviewPanel
+        title="Campus Reports & Analytics"
+        report={report}
+      />
 
       <AITimetableGeneratorPanel onSaved={handleAITimetableSaved} />
 
@@ -356,6 +384,10 @@ const AdminDashboard = () => {
 
             <p className="rounded-md bg-signal-soft p-4 text-sm leading-6 text-paper-dim">
               Backend role authorization middleware is active.
+            </p>
+
+            <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
+              Reports and analytics are available to Admin and HOD users.
             </p>
 
             <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">

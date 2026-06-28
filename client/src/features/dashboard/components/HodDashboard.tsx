@@ -24,6 +24,8 @@ import { getComplaints } from '../../complaints/services/complaint.service'
 import AttendanceSummaryPanel from '../../attendance/components/AttendanceSummaryPanel'
 import { getAttendance } from '../../attendance/services/attendance.service'
 import AITimetableGeneratorPanel from '../../ai-timetable/components/AITimetableGeneratorPanel'
+import ReportsOverviewPanel from '../../reports/components/ReportsOverviewPanel'
+import { getOverviewReport } from '../../reports/services/report.service'
 import type {
   TimetableConflictReport,
   TimetableEntry,
@@ -31,6 +33,7 @@ import type {
 import type { Announcement } from '../../announcements/types/announcement.types'
 import type { Complaint } from '../../complaints/types/complaint.types'
 import type { Attendance } from '../../attendance/types/attendance.types'
+import type { OverviewReport } from '../../reports/types/report.types'
 
 type HodOverviewData = {
   department: string
@@ -48,6 +51,7 @@ const HodDashboard = () => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [complaints, setComplaints] = useState<Complaint[]>([])
   const [attendance, setAttendance] = useState<Attendance[]>([])
+  const [report, setReport] = useState<OverviewReport | null>(null)
   const [conflictReport, setConflictReport] =
     useState<TimetableConflictReport | null>(null)
   const [editingEntry, setEditingEntry] = useState<TimetableEntry | null>(null)
@@ -66,6 +70,15 @@ const HodDashboard = () => {
     }
   }
 
+  const refreshReport = async () => {
+    try {
+      const result = await getOverviewReport()
+      setReport(result)
+    } catch {
+      setReport(null)
+    }
+  }
+
   useEffect(() => {
     const fetchHodData = async () => {
       try {
@@ -76,6 +89,7 @@ const HodDashboard = () => {
           announcementResult,
           complaintResult,
           attendanceResult,
+          reportResult,
         ] = await Promise.all([
           getHodOverview(),
           getAllTimetables(),
@@ -83,6 +97,7 @@ const HodDashboard = () => {
           getAnnouncements(),
           getComplaints(),
           getAttendance(),
+          getOverviewReport(),
         ])
 
         setData(overviewResult)
@@ -91,6 +106,7 @@ const HodDashboard = () => {
         setAnnouncements(announcementResult)
         setComplaints(complaintResult)
         setAttendance(attendanceResult)
+        setReport(reportResult)
       } catch {
         setError('Unable to load HOD dashboard data.')
       } finally {
@@ -103,6 +119,7 @@ const HodDashboard = () => {
 
   const handleAnnouncementCreated = (announcement: Announcement) => {
     setAnnouncements((prev) => [announcement, ...prev])
+    refreshReport()
   }
 
   const handleComplaintUpdated = (updatedComplaint: Complaint) => {
@@ -111,6 +128,7 @@ const HodDashboard = () => {
         item._id === updatedComplaint._id ? updatedComplaint : item
       )
     )
+    refreshReport()
   }
 
   const handleAttendanceUpdated = (updatedAttendance: Attendance) => {
@@ -119,16 +137,19 @@ const HodDashboard = () => {
         item._id === updatedAttendance._id ? updatedAttendance : item
       )
     )
+    refreshReport()
   }
 
   const handleAITimetableSaved = (entries: TimetableEntry[]) => {
     setTimetables((prev) => [...entries, ...prev])
     refreshConflictReport()
+    refreshReport()
   }
 
   const handleTimetableCreated = (entry: TimetableEntry) => {
     setTimetables((prev) => [entry, ...prev])
     refreshConflictReport()
+    refreshReport()
   }
 
   const handleTimetableEdit = (entry: TimetableEntry) => {
@@ -143,6 +164,7 @@ const HodDashboard = () => {
 
     setEditingEntry(null)
     refreshConflictReport()
+    refreshReport()
   }
 
   const handleCancelEdit = () => {
@@ -169,6 +191,7 @@ const HodDashboard = () => {
       }
 
       refreshConflictReport()
+      refreshReport()
     } catch {
       alert('Unable to delete timetable entry.')
     } finally {
@@ -202,9 +225,9 @@ const HodDashboard = () => {
         </h2>
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate">
-          Track department performance, AI timetable generation, attendance,
-          complaints, announcements, faculty workload, timetable efficiency, and
-          academic operations.
+          Track department performance, reports, AI timetable generation,
+          attendance, complaints, announcements, faculty workload, and timetable
+          efficiency.
         </p>
 
         <div className="mt-5 rounded-md border border-line bg-ink-soft px-4 py-3">
@@ -258,6 +281,11 @@ const HodDashboard = () => {
           icon={AlertTriangle}
         />
       </section>
+
+      <ReportsOverviewPanel
+        title="Department Reports & Analytics"
+        report={report}
+      />
 
       <AITimetableGeneratorPanel onSaved={handleAITimetableSaved} />
 
@@ -345,6 +373,11 @@ const HodDashboard = () => {
             </p>
 
             <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
+              Reports help the HOD monitor department timetable, attendance, and
+              complaint performance.
+            </p>
+
+            <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
               AI checks room conflicts, faculty double-booking, and section
               overlaps.
             </p>
@@ -352,11 +385,6 @@ const HodDashboard = () => {
             <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
               Department has {data?.overview.studentCount || 0} active students
               under monitoring.
-            </p>
-
-            <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
-              Attendance and complaint records are connected with live MongoDB
-              data.
             </p>
           </div>
         </div>
