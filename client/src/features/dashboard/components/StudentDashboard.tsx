@@ -2,9 +2,9 @@
 import {
   Bell,
   CalendarClock,
+  ClipboardCheck,
   ClipboardList,
   GraduationCap,
-  TrendingUp,
 } from 'lucide-react'
 import StatsCard from './StatsCard'
 import { getStudentProfile } from '../services/dashboard.service'
@@ -15,9 +15,12 @@ import { getAnnouncements } from '../../announcements/services/announcement.serv
 import ComplaintForm from '../../complaints/components/ComplaintForm'
 import ComplaintList from '../../complaints/components/ComplaintList'
 import { getComplaints } from '../../complaints/services/complaint.service'
+import AttendanceList from '../../attendance/components/AttendanceList'
+import { getAttendance } from '../../attendance/services/attendance.service'
 import type { TimetableEntry } from '../../timetable/types/timetable.types'
 import type { Announcement } from '../../announcements/types/announcement.types'
 import type { Complaint } from '../../complaints/types/complaint.types'
+import type { Attendance } from '../../attendance/types/attendance.types'
 
 type StudentProfileData = {
   modules: string[]
@@ -28,6 +31,7 @@ const StudentDashboard = () => {
   const [timetables, setTimetables] = useState<TimetableEntry[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [complaints, setComplaints] = useState<Complaint[]>([])
+  const [attendance, setAttendance] = useState<Attendance[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -39,17 +43,20 @@ const StudentDashboard = () => {
           timetableResult,
           announcementResult,
           complaintResult,
+          attendanceResult,
         ] = await Promise.all([
           getStudentProfile(),
           getMyTimetable(),
           getAnnouncements(),
           getComplaints(),
+          getAttendance(),
         ])
 
         setProfileData(profileResult)
         setTimetables(timetableResult)
         setAnnouncements(announcementResult)
         setComplaints(complaintResult)
+        setAttendance(attendanceResult)
       } catch {
         setError('Unable to load student dashboard data.')
       } finally {
@@ -130,15 +137,20 @@ const StudentDashboard = () => {
 
         <StatsCard
           title="Attendance"
-          value="91%"
-          description="Current semester average"
-          icon={TrendingUp}
+          value={String(attendance.length)}
+          description="Your marked attendance records"
+          icon={ClipboardCheck}
         />
       </section>
 
       <AnnouncementList
         title="Student Announcements from Backend"
         announcements={announcements}
+      />
+
+      <AttendanceList
+        title="My Attendance from Backend"
+        attendance={attendance}
       />
 
       <ComplaintForm onCreated={handleComplaintCreated} />
@@ -157,13 +169,13 @@ const StudentDashboard = () => {
 
         <div className="mt-6 space-y-3">
           <p className="rounded-md bg-signal-soft p-4 text-sm leading-6 text-paper-dim">
-            Your announcements, complaints, and timetable are loaded from
-            MongoDB through protected backend APIs.
+            Your announcements, attendance, complaints, and timetable are loaded
+            from MongoDB through protected backend APIs.
           </p>
 
           <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
-            Students can raise complaints and track status updates from Admin or
-            HOD.
+            Students can track attendance status marked by faculty and monitor
+            complaint updates from Admin or HOD.
           </p>
         </div>
       </section>
@@ -176,13 +188,13 @@ const StudentDashboard = () => {
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <div className="rounded-md border border-line bg-ink-soft p-4">
             <div className="flex items-center gap-2 text-signal">
-              <ClipboardList size={16} />
-              <p className="text-sm font-semibold">Complaint Tracking</p>
+              <ClipboardCheck size={16} />
+              <p className="text-sm font-semibold">Attendance Tracking</p>
             </div>
 
             <p className="mt-2 text-sm leading-6 text-slate">
-              Complaint module is now connected. You can submit and monitor your
-              requests directly from this dashboard.
+              Attendance module is now connected. You can view class attendance
+              status directly from this dashboard.
             </p>
           </div>
 
@@ -193,8 +205,8 @@ const StudentDashboard = () => {
             </div>
 
             <p className="mt-2 text-sm leading-6 text-slate">
-              Attendance and AI risk prediction will be connected in upcoming
-              sprints.
+              AI risk prediction will use attendance, timetable, and academic
+              activity in upcoming sprints.
             </p>
           </div>
         </div>

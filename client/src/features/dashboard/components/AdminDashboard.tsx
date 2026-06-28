@@ -3,6 +3,7 @@ import {
   Activity,
   Building2,
   CalendarClock,
+  ClipboardCheck,
   ClipboardList,
   Database,
   ShieldCheck,
@@ -23,12 +24,15 @@ import AnnouncementList from '../../announcements/components/AnnouncementList'
 import { getAnnouncements } from '../../announcements/services/announcement.service'
 import ComplaintList from '../../complaints/components/ComplaintList'
 import { getComplaints } from '../../complaints/services/complaint.service'
+import AttendanceList from '../../attendance/components/AttendanceList'
+import { getAttendance } from '../../attendance/services/attendance.service'
 import type {
   TimetableConflictReport,
   TimetableEntry,
 } from '../../timetable/types/timetable.types'
 import type { Announcement } from '../../announcements/types/announcement.types'
 import type { Complaint } from '../../complaints/types/complaint.types'
+import type { Attendance } from '../../attendance/types/attendance.types'
 
 type AdminUser = {
   _id: string
@@ -48,11 +52,13 @@ const AdminDashboard = () => {
   const [timetables, setTimetables] = useState<TimetableEntry[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [complaints, setComplaints] = useState<Complaint[]>([])
+  const [attendance, setAttendance] = useState<Attendance[]>([])
   const [conflictReport, setConflictReport] =
     useState<TimetableConflictReport | null>(null)
   const [editingEntry, setEditingEntry] = useState<TimetableEntry | null>(null)
   const [deletingId, setDeletingId] = useState('')
   const [updatingComplaintId, setUpdatingComplaintId] = useState('')
+  const [updatingAttendanceId, setUpdatingAttendanceId] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -74,12 +80,14 @@ const AdminDashboard = () => {
           conflictResult,
           announcementResult,
           complaintResult,
+          attendanceResult,
         ] = await Promise.all([
           getAdminUsers(),
           getAllTimetables(),
           getTimetableConflicts(),
           getAnnouncements(),
           getComplaints(),
+          getAttendance(),
         ])
 
         setData(usersResult)
@@ -87,6 +95,7 @@ const AdminDashboard = () => {
         setConflictReport(conflictResult)
         setAnnouncements(announcementResult)
         setComplaints(complaintResult)
+        setAttendance(attendanceResult)
       } catch {
         setError('Unable to load admin dashboard data.')
       } finally {
@@ -105,6 +114,14 @@ const AdminDashboard = () => {
     setComplaints((prev) =>
       prev.map((item) =>
         item._id === updatedComplaint._id ? updatedComplaint : item
+      )
+    )
+  }
+
+  const handleAttendanceUpdated = (updatedAttendance: Attendance) => {
+    setAttendance((prev) =>
+      prev.map((item) =>
+        item._id === updatedAttendance._id ? updatedAttendance : item
       )
     )
   }
@@ -186,11 +203,12 @@ const AdminDashboard = () => {
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate">
           Manage users, rooms, campus resources, announcements, complaints,
-          timetable records, AI conflict reports, and platform-level operations.
+          attendance records, timetable records, AI conflict reports, and
+          platform-level operations.
         </p>
       </section>
 
-      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
+      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-6">
         <StatsCard
           title="Users"
           value={String(data?.count || 0)}
@@ -220,12 +238,28 @@ const AdminDashboard = () => {
         />
 
         <StatsCard
+          title="Attendance"
+          value={String(attendance.length)}
+          description="Class attendance records"
+          icon={ClipboardCheck}
+        />
+
+        <StatsCard
           title="AI Conflicts"
           value={String(conflictReport?.conflictCount || 0)}
           description="Detected timetable issues"
           icon={Activity}
         />
       </section>
+
+      <AttendanceList
+        title="Campus Attendance Records from Backend"
+        attendance={attendance}
+        canManage
+        updatingId={updatingAttendanceId}
+        setUpdatingId={setUpdatingAttendanceId}
+        onUpdated={handleAttendanceUpdated}
+      />
 
       <ComplaintList
         title="Complaint Management from Backend"
@@ -314,6 +348,10 @@ const AdminDashboard = () => {
 
             <p className="rounded-md bg-signal-soft p-4 text-sm leading-6 text-paper-dim">
               Backend role authorization middleware is active.
+            </p>
+
+            <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
+              Attendance management is visible to Admin and HOD users.
             </p>
 
             <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">

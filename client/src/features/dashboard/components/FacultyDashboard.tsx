@@ -1,8 +1,9 @@
  import { useEffect, useState } from 'react'
 import {
+  Bell,
   CalendarClock,
   ClipboardCheck,
-  Megaphone,
+  ClipboardList,
   UsersRound,
 } from 'lucide-react'
 import StatsCard from './StatsCard'
@@ -12,40 +13,55 @@ import TimetableList from '../../timetable/components/TimetableList'
 import AnnouncementForm from '../../announcements/components/AnnouncementForm'
 import AnnouncementList from '../../announcements/components/AnnouncementList'
 import { getAnnouncements } from '../../announcements/services/announcement.service'
+import AttendanceForm from '../../attendance/components/AttendanceForm'
+import AttendanceList from '../../attendance/components/AttendanceList'
+import { getAttendance } from '../../attendance/services/attendance.service'
 import type { TimetableEntry } from '../../timetable/types/timetable.types'
 import type { Announcement } from '../../announcements/types/announcement.types'
+import type { Attendance } from '../../attendance/types/attendance.types'
 
 type FacultyClass = {
-  course: string
-  className: string
-  time: string
-  room: string
+  _id: string
+  subject: string
+  department: string
+  semester: number
+  section: string
+  students: number
 }
 
-type FacultyDashboardData = {
+type FacultyClassesData = {
+  count: number
   classes: FacultyClass[]
 }
 
 const FacultyDashboard = () => {
-  const [data, setData] = useState<FacultyDashboardData | null>(null)
+  const [data, setData] = useState<FacultyClassesData | null>(null)
   const [timetables, setTimetables] = useState<TimetableEntry[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [attendance, setAttendance] = useState<Attendance[]>([])
+  const [updatingAttendanceId, setUpdatingAttendanceId] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
     const fetchFacultyData = async () => {
       try {
-        const [facultyResult, timetableResult, announcementResult] =
-          await Promise.all([
-            getFacultyClasses(),
-            getMyTimetable(),
-            getAnnouncements(),
-          ])
+        const [
+          classesResult,
+          timetableResult,
+          announcementResult,
+          attendanceResult,
+        ] = await Promise.all([
+          getFacultyClasses(),
+          getMyTimetable(),
+          getAnnouncements(),
+          getAttendance(),
+        ])
 
-        setData(facultyResult)
+        setData(classesResult)
         setTimetables(timetableResult)
         setAnnouncements(announcementResult)
+        setAttendance(attendanceResult)
       } catch {
         setError('Unable to load faculty dashboard data.')
       } finally {
@@ -58,6 +74,18 @@ const FacultyDashboard = () => {
 
   const handleAnnouncementCreated = (announcement: Announcement) => {
     setAnnouncements((prev) => [announcement, ...prev])
+  }
+
+  const handleAttendanceCreated = (newAttendance: Attendance) => {
+    setAttendance((prev) => [newAttendance, ...prev])
+  }
+
+  const handleAttendanceUpdated = (updatedAttendance: Attendance) => {
+    setAttendance((prev) =>
+      prev.map((item) =>
+        item._id === updatedAttendance._id ? updatedAttendance : item
+      )
+    )
   }
 
   if (isLoading) {
@@ -82,44 +110,55 @@ const FacultyDashboard = () => {
         <p className="mono-label text-xs text-signal">Faculty workspace</p>
 
         <h2 className="mt-2 font-display text-3xl font-semibold text-paper">
-          Manage classes and student progress
+          Teaching and class operations
         </h2>
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate">
-          Handle assigned timetable, academic announcements, attendance marking,
-          and student performance tracking.
+          Manage assigned classes, timetable, student attendance,
+          announcements, and academic activity from one connected dashboard.
         </p>
       </section>
 
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         <StatsCard
-          title="Assigned Timetable"
-          value={String(timetables.length)}
-          description="Classes assigned from backend"
-          icon={CalendarClock}
-        />
-
-        <StatsCard
-          title="Students"
-          value="132"
-          description="Students under your courses"
+          title="Assigned Classes"
+          value={String(data?.count || 0)}
+          description="Faculty class groups"
           icon={UsersRound}
         />
 
         <StatsCard
-          title="Attendance Pending"
-          value="02"
-          description="Sessions waiting for marking"
-          icon={ClipboardCheck}
+          title="Timetable"
+          value={String(timetables.length)}
+          description="Assigned schedule records"
+          icon={CalendarClock}
         />
 
         <StatsCard
           title="Announcements"
           value={String(announcements.length)}
-          description="Visible faculty notices"
-          icon={Megaphone}
+          description="Visible notices"
+          icon={Bell}
+        />
+
+        <StatsCard
+          title="Attendance"
+          value={String(attendance.length)}
+          description="Marked attendance records"
+          icon={ClipboardCheck}
         />
       </section>
+
+      <AttendanceForm onCreated={handleAttendanceCreated} />
+
+      <AttendanceList
+        title="Faculty Attendance Records from Backend"
+        attendance={attendance}
+        canManage
+        updatingId={updatingAttendanceId}
+        setUpdatingId={setUpdatingAttendanceId}
+        onUpdated={handleAttendanceUpdated}
+      />
 
       <AnnouncementForm onCreated={handleAnnouncementCreated} />
 
@@ -128,35 +167,67 @@ const FacultyDashboard = () => {
         announcements={announcements}
       />
 
-      <TimetableList title="My Assigned Timetable" timetables={timetables} />
+      <TimetableList
+        title="My Teaching Timetable from Backend"
+        timetables={timetables}
+      />
 
-      <section className="rounded-lg border border-line bg-panel p-6">
-        <h3 className="font-display text-xl font-semibold text-paper">
-          Faculty Classes from Backend
-        </h3>
+      <section className="grid gap-5 lg:grid-cols-[1fr_0.9fr]">
+        <div className="rounded-lg border border-line bg-panel p-6">
+          <div className="flex items-center gap-2">
+            <ClipboardList size={18} className="text-signal" />
 
-        <div className="mt-6 overflow-hidden rounded-lg border border-line">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-ink-soft text-slate">
-              <tr>
-                <th className="px-4 py-3 font-medium">Course</th>
-                <th className="px-4 py-3 font-medium">Class</th>
-                <th className="px-4 py-3 font-medium">Time</th>
-                <th className="px-4 py-3 font-medium">Room</th>
-              </tr>
-            </thead>
+            <h3 className="font-display text-xl font-semibold text-paper">
+              Assigned Classes from Backend
+            </h3>
+          </div>
 
-            <tbody className="divide-y divide-line">
-              {data?.classes.map((item) => (
-                <tr key={`${item.course}-${item.time}`}>
-                  <td className="px-4 py-3 text-paper">{item.course}</td>
-                  <td className="px-4 py-3 text-slate">{item.className}</td>
-                  <td className="px-4 py-3 text-signal">{item.time}</td>
-                  <td className="px-4 py-3 text-slate">{item.room}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="mt-6 space-y-4">
+            {data?.classes.map((classItem) => (
+              <div
+                key={classItem._id}
+                className="rounded-lg border border-line bg-ink-soft p-4"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-display text-lg font-semibold text-paper">
+                      {classItem.subject}
+                    </p>
+
+                    <p className="mt-1 text-sm text-slate">
+                      {classItem.department} • Semester {classItem.semester} •
+                      Section {classItem.section}
+                    </p>
+                  </div>
+
+                  <span className="rounded-md border border-signal/30 bg-signal-soft px-3 py-1 text-xs text-signal">
+                    {classItem.students} Students
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-line bg-panel p-6">
+          <h3 className="font-display text-xl font-semibold text-paper">
+            Faculty Activity Summary
+          </h3>
+
+          <div className="mt-6 space-y-3">
+            <p className="rounded-md bg-signal-soft p-4 text-sm leading-6 text-paper-dim">
+              Attendance marking is now connected with protected backend APIs.
+            </p>
+
+            <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
+              Faculty can mark and update student attendance status.
+            </p>
+
+            <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
+              Attendance records are stored in MongoDB and visible to Student,
+              HOD, and Admin based on role.
+            </p>
+          </div>
         </div>
       </section>
     </div>
