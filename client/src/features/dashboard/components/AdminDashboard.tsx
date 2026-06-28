@@ -17,10 +17,14 @@ import {
 import TimetableList from '../../timetable/components/TimetableList'
 import TimetableForm from '../../timetable/components/TimetableForm'
 import TimetableConflictPanel from '../../timetable/components/TimetableConflictPanel'
+import AnnouncementForm from '../../announcements/components/AnnouncementForm'
+import AnnouncementList from '../../announcements/components/AnnouncementList'
+import { getAnnouncements } from '../../announcements/services/announcement.service'
 import type {
   TimetableConflictReport,
   TimetableEntry,
 } from '../../timetable/types/timetable.types'
+import type { Announcement } from '../../announcements/types/announcement.types'
 
 type AdminUser = {
   _id: string
@@ -38,6 +42,7 @@ type AdminUsersData = {
 const AdminDashboard = () => {
   const [data, setData] = useState<AdminUsersData | null>(null)
   const [timetables, setTimetables] = useState<TimetableEntry[]>([])
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [conflictReport, setConflictReport] =
     useState<TimetableConflictReport | null>(null)
   const [editingEntry, setEditingEntry] = useState<TimetableEntry | null>(null)
@@ -57,16 +62,22 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        const [usersResult, timetableResult, conflictResult] =
-          await Promise.all([
-            getAdminUsers(),
-            getAllTimetables(),
-            getTimetableConflicts(),
-          ])
+        const [
+          usersResult,
+          timetableResult,
+          conflictResult,
+          announcementResult,
+        ] = await Promise.all([
+          getAdminUsers(),
+          getAllTimetables(),
+          getTimetableConflicts(),
+          getAnnouncements(),
+        ])
 
         setData(usersResult)
         setTimetables(timetableResult)
         setConflictReport(conflictResult)
+        setAnnouncements(announcementResult)
       } catch {
         setError('Unable to load admin dashboard data.')
       } finally {
@@ -76,6 +87,10 @@ const AdminDashboard = () => {
 
     fetchAdminData()
   }, [])
+
+  const handleAnnouncementCreated = (announcement: Announcement) => {
+    setAnnouncements((prev) => [announcement, ...prev])
+  }
 
   const handleTimetableCreated = (entry: TimetableEntry) => {
     setTimetables((prev) => [entry, ...prev])
@@ -153,8 +168,8 @@ const AdminDashboard = () => {
         </h2>
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate">
-          Manage users, rooms, campus resources, system analytics, departments,
-          timetable records, and platform-level operations.
+          Manage users, rooms, campus resources, announcements, timetable
+          records, AI conflict reports, and platform-level operations.
         </p>
       </section>
 
@@ -174,19 +189,26 @@ const AdminDashboard = () => {
         />
 
         <StatsCard
+          title="Announcements"
+          value={String(announcements.length)}
+          description="Visible announcement records"
+          icon={Building2}
+        />
+
+        <StatsCard
           title="AI Conflicts"
           value={String(conflictReport?.conflictCount || 0)}
           description="Detected timetable issues"
           icon={Activity}
         />
-
-        <StatsCard
-          title="Database"
-          value="Live"
-          description="MongoDB connection active"
-          icon={Database}
-        />
       </section>
+
+      <AnnouncementForm onCreated={handleAnnouncementCreated} />
+
+      <AnnouncementList
+        title="Campus Announcements from Backend"
+        announcements={announcements}
+      />
 
       <TimetableForm
         onCreated={handleTimetableCreated}
@@ -262,14 +284,14 @@ const AdminDashboard = () => {
             </p>
 
             <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
-              AI conflict detection is active for timetable management.
+              Announcement visibility is controlled using audience roles.
             </p>
 
             <div className="rounded-md bg-ink-soft p-4">
               <div className="flex items-center gap-2 text-signal">
-                <Building2 size={16} />
+                <Database size={16} />
                 <p className="text-sm font-medium">
-                  Campus resources monitored
+                  MongoDB announcement storage active
                 </p>
               </div>
             </div>

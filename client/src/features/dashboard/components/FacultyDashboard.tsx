@@ -9,7 +9,11 @@ import StatsCard from './StatsCard'
 import { getFacultyClasses } from '../services/dashboard.service'
 import { getMyTimetable } from '../../timetable/services/timetable.service'
 import TimetableList from '../../timetable/components/TimetableList'
+import AnnouncementForm from '../../announcements/components/AnnouncementForm'
+import AnnouncementList from '../../announcements/components/AnnouncementList'
+import { getAnnouncements } from '../../announcements/services/announcement.service'
 import type { TimetableEntry } from '../../timetable/types/timetable.types'
+import type { Announcement } from '../../announcements/types/announcement.types'
 
 type FacultyClass = {
   course: string
@@ -25,19 +29,23 @@ type FacultyDashboardData = {
 const FacultyDashboard = () => {
   const [data, setData] = useState<FacultyDashboardData | null>(null)
   const [timetables, setTimetables] = useState<TimetableEntry[]>([])
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
     const fetchFacultyData = async () => {
       try {
-        const [facultyResult, timetableResult] = await Promise.all([
-          getFacultyClasses(),
-          getMyTimetable(),
-        ])
+        const [facultyResult, timetableResult, announcementResult] =
+          await Promise.all([
+            getFacultyClasses(),
+            getMyTimetable(),
+            getAnnouncements(),
+          ])
 
         setData(facultyResult)
         setTimetables(timetableResult)
+        setAnnouncements(announcementResult)
       } catch {
         setError('Unable to load faculty dashboard data.')
       } finally {
@@ -47,6 +55,10 @@ const FacultyDashboard = () => {
 
     fetchFacultyData()
   }, [])
+
+  const handleAnnouncementCreated = (announcement: Announcement) => {
+    setAnnouncements((prev) => [announcement, ...prev])
+  }
 
   if (isLoading) {
     return (
@@ -74,7 +86,7 @@ const FacultyDashboard = () => {
         </h2>
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate">
-          Handle class schedules, attendance marking, academic announcements,
+          Handle assigned timetable, academic announcements, attendance marking,
           and student performance tracking.
         </p>
       </section>
@@ -103,11 +115,18 @@ const FacultyDashboard = () => {
 
         <StatsCard
           title="Announcements"
-          value="03"
-          description="Published this week"
+          value={String(announcements.length)}
+          description="Visible faculty notices"
           icon={Megaphone}
         />
       </section>
+
+      <AnnouncementForm onCreated={handleAnnouncementCreated} />
+
+      <AnnouncementList
+        title="Faculty Announcements from Backend"
+        announcements={announcements}
+      />
 
       <TimetableList title="My Assigned Timetable" timetables={timetables} />
 

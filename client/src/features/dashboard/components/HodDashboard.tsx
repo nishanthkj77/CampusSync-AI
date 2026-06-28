@@ -1,8 +1,8 @@
  import { useEffect, useState } from 'react'
 import {
   AlertTriangle,
-  BarChart3,
   ClipboardList,
+  Megaphone,
   UsersRound,
 } from 'lucide-react'
 import StatsCard from './StatsCard'
@@ -15,10 +15,14 @@ import {
 import TimetableList from '../../timetable/components/TimetableList'
 import TimetableForm from '../../timetable/components/TimetableForm'
 import TimetableConflictPanel from '../../timetable/components/TimetableConflictPanel'
+import AnnouncementForm from '../../announcements/components/AnnouncementForm'
+import AnnouncementList from '../../announcements/components/AnnouncementList'
+import { getAnnouncements } from '../../announcements/services/announcement.service'
 import type {
   TimetableConflictReport,
   TimetableEntry,
 } from '../../timetable/types/timetable.types'
+import type { Announcement } from '../../announcements/types/announcement.types'
 
 type HodOverviewData = {
   department: string
@@ -33,6 +37,7 @@ type HodOverviewData = {
 const HodDashboard = () => {
   const [data, setData] = useState<HodOverviewData | null>(null)
   const [timetables, setTimetables] = useState<TimetableEntry[]>([])
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [conflictReport, setConflictReport] =
     useState<TimetableConflictReport | null>(null)
   const [editingEntry, setEditingEntry] = useState<TimetableEntry | null>(null)
@@ -52,16 +57,22 @@ const HodDashboard = () => {
   useEffect(() => {
     const fetchHodData = async () => {
       try {
-        const [overviewResult, timetableResult, conflictResult] =
-          await Promise.all([
-            getHodOverview(),
-            getAllTimetables(),
-            getTimetableConflicts(),
-          ])
+        const [
+          overviewResult,
+          timetableResult,
+          conflictResult,
+          announcementResult,
+        ] = await Promise.all([
+          getHodOverview(),
+          getAllTimetables(),
+          getTimetableConflicts(),
+          getAnnouncements(),
+        ])
 
         setData(overviewResult)
         setTimetables(timetableResult)
         setConflictReport(conflictResult)
+        setAnnouncements(announcementResult)
       } catch {
         setError('Unable to load HOD dashboard data.')
       } finally {
@@ -71,6 +82,10 @@ const HodDashboard = () => {
 
     fetchHodData()
   }, [])
+
+  const handleAnnouncementCreated = (announcement: Announcement) => {
+    setAnnouncements((prev) => [announcement, ...prev])
+  }
 
   const handleTimetableCreated = (entry: TimetableEntry) => {
     setTimetables((prev) => [entry, ...prev])
@@ -148,8 +163,8 @@ const HodDashboard = () => {
         </h2>
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate">
-          Track department performance, faculty workload, complaints, timetable
-          efficiency, and academic risk indicators.
+          Track department performance, announcements, faculty workload,
+          timetable efficiency, and academic risk indicators.
         </p>
 
         <div className="mt-5 rounded-md border border-line bg-ink-soft px-4 py-3">
@@ -169,17 +184,17 @@ const HodDashboard = () => {
         />
 
         <StatsCard
-          title="Department Attendance"
-          value={data?.overview.attendanceAverage || '0%'}
-          description="Overall student attendance"
-          icon={BarChart3}
-        />
-
-        <StatsCard
           title="Timetable Entries"
           value={String(timetables.length)}
           description="Active academic schedule records"
           icon={ClipboardList}
+        />
+
+        <StatsCard
+          title="Announcements"
+          value={String(announcements.length)}
+          description="Visible department notices"
+          icon={Megaphone}
         />
 
         <StatsCard
@@ -189,6 +204,13 @@ const HodDashboard = () => {
           icon={AlertTriangle}
         />
       </section>
+
+      <AnnouncementForm onCreated={handleAnnouncementCreated} />
+
+      <AnnouncementList
+        title="Department Announcements from Backend"
+        announcements={announcements}
+      />
 
       <TimetableForm
         onCreated={handleTimetableCreated}
@@ -253,8 +275,8 @@ const HodDashboard = () => {
             </p>
 
             <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
-              Conflict detector checks room clashes, faculty double-booking, and
-              same-section overlapping sessions.
+              Department attendance average is{' '}
+              {data?.overview.attendanceAverage || '0%'}.
             </p>
           </div>
         </div>

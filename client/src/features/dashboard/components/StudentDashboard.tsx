@@ -1,5 +1,6 @@
  import { useEffect, useState } from 'react'
 import {
+  Bell,
   CalendarClock,
   ClipboardList,
   GraduationCap,
@@ -9,7 +10,10 @@ import StatsCard from './StatsCard'
 import { getStudentProfile } from '../services/dashboard.service'
 import { getMyTimetable } from '../../timetable/services/timetable.service'
 import TimetableList from '../../timetable/components/TimetableList'
+import AnnouncementList from '../../announcements/components/AnnouncementList'
+import { getAnnouncements } from '../../announcements/services/announcement.service'
 import type { TimetableEntry } from '../../timetable/types/timetable.types'
+import type { Announcement } from '../../announcements/types/announcement.types'
 
 type StudentProfileData = {
   modules: string[]
@@ -18,19 +22,23 @@ type StudentProfileData = {
 const StudentDashboard = () => {
   const [profileData, setProfileData] = useState<StudentProfileData | null>(null)
   const [timetables, setTimetables] = useState<TimetableEntry[]>([])
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        const [profileResult, timetableResult] = await Promise.all([
-          getStudentProfile(),
-          getMyTimetable(),
-        ])
+        const [profileResult, timetableResult, announcementResult] =
+          await Promise.all([
+            getStudentProfile(),
+            getMyTimetable(),
+            getAnnouncements(),
+          ])
 
         setProfileData(profileResult)
         setTimetables(timetableResult)
+        setAnnouncements(announcementResult)
       } catch {
         setError('Unable to load student dashboard data.')
       } finally {
@@ -67,8 +75,8 @@ const StudentDashboard = () => {
         </h2>
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate">
-          View your timetable, attendance, complaints, announcements, and
-          academic updates in one place.
+          View your timetable, announcements, attendance, complaints,
+          assignments, and academic updates in one place.
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2">
@@ -92,6 +100,13 @@ const StudentDashboard = () => {
         />
 
         <StatsCard
+          title="Announcements"
+          value={String(announcements.length)}
+          description="Visible student notices"
+          icon={Bell}
+        />
+
+        <StatsCard
           title="Attendance"
           value="91%"
           description="Current semester average"
@@ -104,14 +119,12 @@ const StudentDashboard = () => {
           description="Pending academic submissions"
           icon={GraduationCap}
         />
-
-        <StatsCard
-          title="Complaints"
-          value="02"
-          description="Active service requests"
-          icon={ClipboardList}
-        />
       </section>
+
+      <AnnouncementList
+        title="Student Announcements from Backend"
+        announcements={announcements}
+      />
 
       <TimetableList title="My Timetable from Backend" timetables={timetables} />
 
@@ -122,13 +135,45 @@ const StudentDashboard = () => {
 
         <div className="mt-6 space-y-3">
           <p className="rounded-md bg-signal-soft p-4 text-sm leading-6 text-paper-dim">
-            Your timetable is now loaded from MongoDB through protected backend
-            APIs.
+            Your announcements and timetable are loaded from MongoDB through
+            protected backend APIs.
           </p>
 
           <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
-            Next AI module will detect timetable conflicts automatically.
+            Students can view announcements, but only Admin, HOD, and Faculty
+            can create them.
           </p>
+        </div>
+      </section>
+
+      <section className="rounded-lg border border-line bg-panel p-6">
+        <h3 className="font-display text-xl font-semibold text-paper">
+          Student Service Summary
+        </h3>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <div className="rounded-md border border-line bg-ink-soft p-4">
+            <div className="flex items-center gap-2 text-signal">
+              <ClipboardList size={16} />
+              <p className="text-sm font-semibold">Complaints</p>
+            </div>
+
+            <p className="mt-2 text-sm leading-6 text-slate">
+              Complaint tracking module will be added in the next sprint.
+            </p>
+          </div>
+
+          <div className="rounded-md border border-line bg-ink-soft p-4">
+            <div className="flex items-center gap-2 text-signal">
+              <TrendingUp size={16} />
+              <p className="text-sm font-semibold">Academic Progress</p>
+            </div>
+
+            <p className="mt-2 text-sm leading-6 text-slate">
+              Attendance and AI risk prediction will be connected in upcoming
+              sprints.
+            </p>
+          </div>
         </div>
       </section>
     </div>
