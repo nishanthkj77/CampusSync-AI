@@ -5,6 +5,7 @@ import studentRoutes from "./student.routes";
 import facultyRoutes from "./faculty.routes";
 import hodRoutes from "./hod.routes";
 import adminRoutes from "./admin.routes";
+import timetableRoutes from "./timetable.routes";
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.use("/student", studentRoutes);
 router.use("/faculty", facultyRoutes);
 router.use("/hod", hodRoutes);
 router.use("/admin", adminRoutes);
+router.use("/timetable", timetableRoutes);
 
 export default router;
