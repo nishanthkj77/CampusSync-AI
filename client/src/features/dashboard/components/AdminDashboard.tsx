@@ -12,10 +12,15 @@ import { getAdminUsers } from '../services/dashboard.service'
 import {
   deleteTimetable,
   getAllTimetables,
+  getTimetableConflicts,
 } from '../../timetable/services/timetable.service'
 import TimetableList from '../../timetable/components/TimetableList'
 import TimetableForm from '../../timetable/components/TimetableForm'
-import type { TimetableEntry } from '../../timetable/types/timetable.types'
+import TimetableConflictPanel from '../../timetable/components/TimetableConflictPanel'
+import type {
+  TimetableConflictReport,
+  TimetableEntry,
+} from '../../timetable/types/timetable.types'
 
 type AdminUser = {
   _id: string
@@ -33,21 +38,35 @@ type AdminUsersData = {
 const AdminDashboard = () => {
   const [data, setData] = useState<AdminUsersData | null>(null)
   const [timetables, setTimetables] = useState<TimetableEntry[]>([])
+  const [conflictReport, setConflictReport] =
+    useState<TimetableConflictReport | null>(null)
   const [editingEntry, setEditingEntry] = useState<TimetableEntry | null>(null)
   const [deletingId, setDeletingId] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const refreshConflictReport = async () => {
+    try {
+      const result = await getTimetableConflicts()
+      setConflictReport(result)
+    } catch {
+      setConflictReport(null)
+    }
+  }
+
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        const [usersResult, timetableResult] = await Promise.all([
-          getAdminUsers(),
-          getAllTimetables(),
-        ])
+        const [usersResult, timetableResult, conflictResult] =
+          await Promise.all([
+            getAdminUsers(),
+            getAllTimetables(),
+            getTimetableConflicts(),
+          ])
 
         setData(usersResult)
         setTimetables(timetableResult)
+        setConflictReport(conflictResult)
       } catch {
         setError('Unable to load admin dashboard data.')
       } finally {
@@ -60,6 +79,7 @@ const AdminDashboard = () => {
 
   const handleTimetableCreated = (entry: TimetableEntry) => {
     setTimetables((prev) => [entry, ...prev])
+    refreshConflictReport()
   }
 
   const handleTimetableEdit = (entry: TimetableEntry) => {
@@ -73,6 +93,7 @@ const AdminDashboard = () => {
     )
 
     setEditingEntry(null)
+    refreshConflictReport()
   }
 
   const handleCancelEdit = () => {
@@ -91,11 +112,14 @@ const AdminDashboard = () => {
     try {
       setDeletingId(id)
       await deleteTimetable(id)
+
       setTimetables((prev) => prev.filter((item) => item._id !== id))
 
       if (editingEntry?._id === id) {
         setEditingEntry(null)
       }
+
+      refreshConflictReport()
     } catch {
       alert('Unable to delete timetable entry.')
     } finally {
@@ -150,10 +174,10 @@ const AdminDashboard = () => {
         />
 
         <StatsCard
-          title="Rooms"
-          value="86"
-          description="Classrooms, labs, and halls"
-          icon={Building2}
+          title="AI Conflicts"
+          value={String(conflictReport?.conflictCount || 0)}
+          description="Detected timetable issues"
+          icon={Activity}
         />
 
         <StatsCard
@@ -170,6 +194,8 @@ const AdminDashboard = () => {
         onUpdated={handleTimetableUpdated}
         onCancelEdit={handleCancelEdit}
       />
+
+      <TimetableConflictPanel report={conflictReport} />
 
       <TimetableList
         title="Campus Timetable from Backend"
@@ -235,10 +261,16 @@ const AdminDashboard = () => {
               Backend role authorization middleware is active.
             </p>
 
+            <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
+              AI conflict detection is active for timetable management.
+            </p>
+
             <div className="rounded-md bg-ink-soft p-4">
               <div className="flex items-center gap-2 text-signal">
-                <Activity size={16} />
-                <p className="text-sm font-medium">System status stable</p>
+                <Building2 size={16} />
+                <p className="text-sm font-medium">
+                  Campus resources monitored
+                </p>
               </div>
             </div>
           </div>

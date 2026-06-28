@@ -10,10 +10,15 @@ import { getHodOverview } from '../services/dashboard.service'
 import {
   deleteTimetable,
   getAllTimetables,
+  getTimetableConflicts,
 } from '../../timetable/services/timetable.service'
 import TimetableList from '../../timetable/components/TimetableList'
 import TimetableForm from '../../timetable/components/TimetableForm'
-import type { TimetableEntry } from '../../timetable/types/timetable.types'
+import TimetableConflictPanel from '../../timetable/components/TimetableConflictPanel'
+import type {
+  TimetableConflictReport,
+  TimetableEntry,
+} from '../../timetable/types/timetable.types'
 
 type HodOverviewData = {
   department: string
@@ -28,21 +33,35 @@ type HodOverviewData = {
 const HodDashboard = () => {
   const [data, setData] = useState<HodOverviewData | null>(null)
   const [timetables, setTimetables] = useState<TimetableEntry[]>([])
+  const [conflictReport, setConflictReport] =
+    useState<TimetableConflictReport | null>(null)
   const [editingEntry, setEditingEntry] = useState<TimetableEntry | null>(null)
   const [deletingId, setDeletingId] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const refreshConflictReport = async () => {
+    try {
+      const result = await getTimetableConflicts()
+      setConflictReport(result)
+    } catch {
+      setConflictReport(null)
+    }
+  }
+
   useEffect(() => {
     const fetchHodData = async () => {
       try {
-        const [overviewResult, timetableResult] = await Promise.all([
-          getHodOverview(),
-          getAllTimetables(),
-        ])
+        const [overviewResult, timetableResult, conflictResult] =
+          await Promise.all([
+            getHodOverview(),
+            getAllTimetables(),
+            getTimetableConflicts(),
+          ])
 
         setData(overviewResult)
         setTimetables(timetableResult)
+        setConflictReport(conflictResult)
       } catch {
         setError('Unable to load HOD dashboard data.')
       } finally {
@@ -55,6 +74,7 @@ const HodDashboard = () => {
 
   const handleTimetableCreated = (entry: TimetableEntry) => {
     setTimetables((prev) => [entry, ...prev])
+    refreshConflictReport()
   }
 
   const handleTimetableEdit = (entry: TimetableEntry) => {
@@ -68,6 +88,7 @@ const HodDashboard = () => {
     )
 
     setEditingEntry(null)
+    refreshConflictReport()
   }
 
   const handleCancelEdit = () => {
@@ -86,11 +107,14 @@ const HodDashboard = () => {
     try {
       setDeletingId(id)
       await deleteTimetable(id)
+
       setTimetables((prev) => prev.filter((item) => item._id !== id))
 
       if (editingEntry?._id === id) {
         setEditingEntry(null)
       }
+
+      refreshConflictReport()
     } catch {
       alert('Unable to delete timetable entry.')
     } finally {
@@ -159,9 +183,9 @@ const HodDashboard = () => {
         />
 
         <StatsCard
-          title="Risk Alerts"
-          value="05"
-          description="AI-detected academic risks"
+          title="AI Conflicts"
+          value={String(conflictReport?.conflictCount || 0)}
+          description="Detected timetable issues"
           icon={AlertTriangle}
         />
       </section>
@@ -172,6 +196,8 @@ const HodDashboard = () => {
         onUpdated={handleTimetableUpdated}
         onCancelEdit={handleCancelEdit}
       />
+
+      <TimetableConflictPanel report={conflictReport} />
 
       <TimetableList
         title="Department Timetable from Backend"
@@ -224,6 +250,11 @@ const HodDashboard = () => {
             <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
               Department has {data?.overview.studentCount || 0} active students
               under monitoring.
+            </p>
+
+            <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
+              Conflict detector checks room clashes, faculty double-booking, and
+              same-section overlapping sessions.
             </p>
           </div>
         </div>

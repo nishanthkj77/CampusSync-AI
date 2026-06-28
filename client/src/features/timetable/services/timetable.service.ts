@@ -1,6 +1,7 @@
  import api from '../../../api/axios'
 import type {
   CreateTimetablePayload,
+  TimetableConflictReport,
   TimetableEntry,
 } from '../types/timetable.types'
 
@@ -21,6 +22,12 @@ type TimetableSingleResponse = {
   }
 }
 
+type TimetableConflictResponse = {
+  success: boolean
+  message: string
+  data: TimetableConflictReport
+}
+
 export const getMyTimetable = async (): Promise<TimetableEntry[]> => {
   const response = await api.get<TimetableListResponse>('/timetable/my')
 
@@ -32,6 +39,15 @@ export const getAllTimetables = async (): Promise<TimetableEntry[]> => {
 
   return response.data.data.timetables
 }
+
+export const getTimetableConflicts =
+  async (): Promise<TimetableConflictReport> => {
+    const response = await api.get<TimetableConflictResponse>(
+      '/timetable/conflicts'
+    )
+
+    return response.data.data
+  }
 
 export const createTimetable = async (
   payload: CreateTimetablePayload
