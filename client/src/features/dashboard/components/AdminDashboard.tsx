@@ -26,6 +26,7 @@ import ComplaintList from '../../complaints/components/ComplaintList'
 import { getComplaints } from '../../complaints/services/complaint.service'
 import AttendanceSummaryPanel from '../../attendance/components/AttendanceSummaryPanel'
 import { getAttendance } from '../../attendance/services/attendance.service'
+import AITimetableGeneratorPanel from '../../ai-timetable/components/AITimetableGeneratorPanel'
 import type {
   TimetableConflictReport,
   TimetableEntry,
@@ -126,6 +127,11 @@ const AdminDashboard = () => {
     )
   }
 
+  const handleAITimetableSaved = (entries: TimetableEntry[]) => {
+    setTimetables((prev) => [...entries, ...prev])
+    refreshConflictReport()
+  }
+
   const handleTimetableCreated = (entry: TimetableEntry) => {
     setTimetables((prev) => [entry, ...prev])
     refreshConflictReport()
@@ -203,8 +209,8 @@ const AdminDashboard = () => {
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate">
           Manage users, rooms, campus resources, announcements, complaints,
-          attendance records, timetable records, AI conflict reports, and
-          platform-level operations.
+          attendance records, timetable records, AI timetable generation, AI
+          conflict reports, and platform-level operations.
         </p>
       </section>
 
@@ -251,6 +257,8 @@ const AdminDashboard = () => {
           icon={Activity}
         />
       </section>
+
+      <AITimetableGeneratorPanel onSaved={handleAITimetableSaved} />
 
       <AttendanceSummaryPanel
         title="Campus Attendance Summary from Backend"
@@ -348,6 +356,10 @@ const AdminDashboard = () => {
 
             <p className="rounded-md bg-signal-soft p-4 text-sm leading-6 text-paper-dim">
               Backend role authorization middleware is active.
+            </p>
+
+            <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
+              AI timetable generation is restricted to Admin and HOD users.
             </p>
 
             <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">

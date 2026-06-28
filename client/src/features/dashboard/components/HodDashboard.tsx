@@ -23,6 +23,7 @@ import ComplaintList from '../../complaints/components/ComplaintList'
 import { getComplaints } from '../../complaints/services/complaint.service'
 import AttendanceSummaryPanel from '../../attendance/components/AttendanceSummaryPanel'
 import { getAttendance } from '../../attendance/services/attendance.service'
+import AITimetableGeneratorPanel from '../../ai-timetable/components/AITimetableGeneratorPanel'
 import type {
   TimetableConflictReport,
   TimetableEntry,
@@ -120,6 +121,11 @@ const HodDashboard = () => {
     )
   }
 
+  const handleAITimetableSaved = (entries: TimetableEntry[]) => {
+    setTimetables((prev) => [...entries, ...prev])
+    refreshConflictReport()
+  }
+
   const handleTimetableCreated = (entry: TimetableEntry) => {
     setTimetables((prev) => [entry, ...prev])
     refreshConflictReport()
@@ -196,8 +202,9 @@ const HodDashboard = () => {
         </h2>
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate">
-          Track department performance, attendance, complaints, announcements,
-          faculty workload, timetable efficiency, and academic risk indicators.
+          Track department performance, AI timetable generation, attendance,
+          complaints, announcements, faculty workload, timetable efficiency, and
+          academic operations.
         </p>
 
         <div className="mt-5 rounded-md border border-line bg-ink-soft px-4 py-3">
@@ -251,6 +258,8 @@ const HodDashboard = () => {
           icon={AlertTriangle}
         />
       </section>
+
+      <AITimetableGeneratorPanel onSaved={handleAITimetableSaved} />
 
       <AttendanceSummaryPanel
         title="Department Attendance Summary from Backend"
@@ -331,8 +340,13 @@ const HodDashboard = () => {
 
           <div className="mt-6 space-y-3">
             <p className="rounded-md bg-signal-soft p-4 text-sm leading-6 text-paper-dim">
-              AI recommends checking room and faculty conflicts across timetable
-              entries.
+              AI timetable generator can create conflict-free schedule previews
+              before saving them.
+            </p>
+
+            <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
+              AI checks room conflicts, faculty double-booking, and section
+              overlaps.
             </p>
 
             <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
@@ -341,12 +355,8 @@ const HodDashboard = () => {
             </p>
 
             <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
-              Attendance records are connected with MongoDB and ready for AI
-              risk prediction.
-            </p>
-
-            <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
-              Complaint management is connected with live MongoDB data.
+              Attendance and complaint records are connected with live MongoDB
+              data.
             </p>
           </div>
         </div>
