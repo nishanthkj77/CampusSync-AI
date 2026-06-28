@@ -1,8 +1,9 @@
-import { Schema, model, Document, Types } from "mongoose";
+ import { Schema, model, Document, Types } from "mongoose";
 
 export type AttendanceStatus = "present" | "absent" | "late";
 
 export type AttendanceStudentRecord = {
+  rollNumber?: string;
   studentName: string;
   studentEmail: string;
   status: AttendanceStatus;
@@ -27,6 +28,12 @@ export interface IAttendance extends Document {
 
 const attendanceStudentRecordSchema = new Schema<AttendanceStudentRecord>(
   {
+    rollNumber: {
+      type: String,
+      trim: true,
+      uppercase: true,
+      default: "",
+    },
     studentName: {
       type: String,
       required: [true, "Student name is required"],

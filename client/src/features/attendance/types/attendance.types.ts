@@ -1,6 +1,7 @@
-export type AttendanceStatus = 'present' | 'absent' | 'late'
+ export type AttendanceStatus = 'present' | 'absent' | 'late'
 
 export type AttendanceStudentRecord = {
+  rollNumber?: string
   studentName: string
   studentEmail: string
   status: AttendanceStatus

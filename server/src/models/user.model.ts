@@ -1,3 +1,4 @@
+ import bcrypt from "bcryptjs";
 import { Schema, model, Document } from "mongoose";
 
 export type UserRole = "student" | "faculty" | "hod" | "admin";
@@ -7,7 +8,12 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: UserRole;
+  rollNumber?: string;
+  department?: string;
+  semester?: number;
+  section?: string;
   isActive: boolean;
+  comparePassword(candidatePassword: string): Promise<boolean>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -18,7 +24,6 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: [true, "Name is required"],
       trim: true,
-      minlength: [2, "Name must be at least 2 characters"],
     },
     email: {
       type: String,
@@ -38,6 +43,28 @@ const userSchema = new Schema<IUser>(
       enum: ["student", "faculty", "hod", "admin"],
       default: "student",
     },
+    rollNumber: {
+      type: String,
+      trim: true,
+      uppercase: true,
+      sparse: true,
+    },
+    department: {
+      type: String,
+      trim: true,
+      default: "Computer Applications",
+    },
+    semester: {
+      type: Number,
+      min: 1,
+      max: 10,
+    },
+    section: {
+      type: String,
+      trim: true,
+      uppercase: true,
+      default: "A",
+    },
     isActive: {
       type: Boolean,
       default: true,
@@ -47,6 +74,24 @@ const userSchema = new Schema<IUser>(
     timestamps: true,
   }
 );
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    next();
+    return;
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+
+  next();
+});
+
+userSchema.methods.comparePassword = async function (
+  candidatePassword: string
+): Promise<boolean> {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
 const User = model<IUser>("User", userSchema);
 
