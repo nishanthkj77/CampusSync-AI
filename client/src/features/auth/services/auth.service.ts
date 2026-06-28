@@ -1,4 +1,4 @@
-import api from '../../../api/axios'
+ import api from '../../../api/axios'
 import type {
   AuthResponse,
   AuthUser,
@@ -24,6 +24,14 @@ type BackendAuthResponse = {
   }
 }
 
+type BackendCurrentUserResponse = {
+  success: boolean
+  message: string
+  data: {
+    user: BackendUser
+  }
+}
+
 const mapBackendUser = (user: BackendUser): AuthUser => {
   return {
     id: user.id,
@@ -31,6 +39,17 @@ const mapBackendUser = (user: BackendUser): AuthUser => {
     email: user.email,
     role: user.role,
     isActive: user.isActive,
+  }
+}
+
+export const loginUser = async (
+  payload: LoginPayload
+): Promise<AuthResponse> => {
+  const response = await api.post<BackendAuthResponse>('/auth/login', payload)
+
+  return {
+    user: mapBackendUser(response.data.data.user),
+    token: response.data.data.token,
   }
 }
 
@@ -45,13 +64,8 @@ export const registerUser = async (
   }
 }
 
-export const loginUser = async (
-  payload: LoginPayload
-): Promise<AuthResponse> => {
-  const response = await api.post<BackendAuthResponse>('/auth/login', payload)
+export const getCurrentUser = async (): Promise<AuthUser> => {
+  const response = await api.get<BackendCurrentUserResponse>('/auth/me')
 
-  return {
-    user: mapBackendUser(response.data.data.user),
-    token: response.data.data.token,
-  }
+  return mapBackendUser(response.data.data.user)
 }

@@ -1,9 +1,12 @@
-import AppRouter from './routes/AppRouter'
+ import AppRouter from './routes/AppRouter'
+import AuthInitializer from './features/auth/components/AuthInitializer'
 
 const App = () => {
-  return <AppRouter />
+  return (
+    <AuthInitializer>
+      <AppRouter />
+    </AuthInitializer>
+  )
 }
 
 export default App
-
-

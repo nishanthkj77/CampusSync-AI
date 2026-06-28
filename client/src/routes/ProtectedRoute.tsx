@@ -1,7 +1,6 @@
  import type { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-import { getToken } from '../utils/token'
 
 type ProtectedRouteProps = {
   children: ReactNode
@@ -9,9 +8,13 @@ type ProtectedRouteProps = {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-  const token = getToken()
+  const isAuthLoading = useAuthStore((state) => state.isAuthLoading)
 
-  if (!isAuthenticated && !token) {
+  if (isAuthLoading) {
+    return null
+  }
+
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />
   }
 

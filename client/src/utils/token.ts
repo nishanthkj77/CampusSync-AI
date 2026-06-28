@@ -1,4 +1,4 @@
-const TOKEN_KEY = 'campussync_ai_token'
+ const TOKEN_KEY = 'campussync_ai_token'
 
 export const setToken = (token: string): void => {
   localStorage.setItem(TOKEN_KEY, token)
