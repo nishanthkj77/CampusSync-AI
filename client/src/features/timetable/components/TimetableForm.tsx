@@ -1,7 +1,10 @@
- import { useState } from 'react'
+ import { useEffect, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
-import { PlusCircle } from 'lucide-react'
-import { createTimetable } from '../services/timetable.service'
+import { PlusCircle, Save, XCircle } from 'lucide-react'
+import {
+  createTimetable,
+  updateTimetable,
+} from '../services/timetable.service'
 import type {
   CreateTimetablePayload,
   DayOfWeek,
@@ -11,6 +14,9 @@ import type {
 
 type TimetableFormProps = {
   onCreated: (entry: TimetableEntry) => void
+  editEntry?: TimetableEntry | null
+  onUpdated?: (entry: TimetableEntry) => void
+  onCancelEdit?: () => void
 }
 
 const initialFormData: CreateTimetablePayload = {
@@ -39,12 +45,44 @@ const days: DayOfWeek[] = [
 
 const sessionTypes: SessionType[] = ['lecture', 'lab', 'seminar', 'exam']
 
-const TimetableForm = ({ onCreated }: TimetableFormProps) => {
+const TimetableForm = ({
+  onCreated,
+  editEntry = null,
+  onUpdated,
+  onCancelEdit,
+}: TimetableFormProps) => {
   const [formData, setFormData] =
     useState<CreateTimetablePayload>(initialFormData)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  const isEditMode = Boolean(editEntry)
+
+  useEffect(() => {
+    if (editEntry) {
+      setFormData({
+        courseCode: editEntry.courseCode,
+        courseTitle: editEntry.courseTitle,
+        department: editEntry.department,
+        semester: editEntry.semester,
+        section: editEntry.section,
+        facultyName: editEntry.facultyName,
+        facultyEmail: editEntry.facultyEmail,
+        room: editEntry.room,
+        dayOfWeek: editEntry.dayOfWeek,
+        startTime: editEntry.startTime,
+        endTime: editEntry.endTime,
+        sessionType: editEntry.sessionType,
+      })
+
+      setSuccess('')
+      setError('')
+      return
+    }
+
+    setFormData(initialFormData)
+  }, [editEntry])
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -66,31 +104,51 @@ const TimetableForm = ({ onCreated }: TimetableFormProps) => {
     setIsSubmitting(true)
 
     try {
+      if (editEntry) {
+        const updatedEntry = await updateTimetable(editEntry._id, formData)
+
+        onUpdated?.(updatedEntry)
+        setSuccess('Timetable entry updated successfully.')
+        return
+      }
+
       const createdEntry = await createTimetable(formData)
 
       onCreated(createdEntry)
       setSuccess('Timetable entry created successfully.')
       setFormData(initialFormData)
     } catch {
-      setError('Unable to create timetable entry. Please check the details.')
+      setError('Unable to save timetable entry. Please check the details.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  const handleCancelEdit = () => {
+    setFormData(initialFormData)
+    setError('')
+    setSuccess('')
+    onCancelEdit?.()
+  }
+
   return (
     <section className="rounded-lg border border-line bg-panel p-6">
       <div className="flex items-center gap-2">
-        <PlusCircle size={18} className="text-signal" />
+        {isEditMode ? (
+          <Save size={18} className="text-signal" />
+        ) : (
+          <PlusCircle size={18} className="text-signal" />
+        )}
 
         <h3 className="font-display text-xl font-semibold text-paper">
-          Create Timetable Entry
+          {isEditMode ? 'Edit Timetable Entry' : 'Create Timetable Entry'}
         </h3>
       </div>
 
       <p className="mt-2 text-sm text-slate">
-        Add a new academic schedule entry. Only Admin and HOD users can use this
-        form.
+        {isEditMode
+          ? 'Update the selected academic schedule entry.'
+          : 'Add a new academic schedule entry. Only Admin and HOD users can use this form.'}
       </p>
 
       {error && (
@@ -278,14 +336,31 @@ const TimetableForm = ({ onCreated }: TimetableFormProps) => {
           />
         </div>
 
-        <div className="md:col-span-2">
+        <div className="flex gap-3 md:col-span-2">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-signal px-6 py-3 font-display text-sm font-semibold text-ink transition hover:bg-[#ff9c5c] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-signal px-6 py-3 font-display text-sm font-semibold text-ink transition hover:bg-[#ff9c5c] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? 'Creating entry...' : 'Create Timetable Entry'}
+            {isSubmitting
+              ? isEditMode
+                ? 'Updating entry...'
+                : 'Creating entry...'
+              : isEditMode
+                ? 'Update Timetable Entry'
+                : 'Create Timetable Entry'}
           </button>
+
+          {isEditMode && (
+            <button
+              type="button"
+              onClick={handleCancelEdit}
+              className="inline-flex items-center justify-center gap-2 rounded-md border border-line bg-ink-soft px-6 py-3 font-display text-sm font-semibold text-slate transition hover:border-signal hover:text-paper"
+            >
+              <XCircle size={16} />
+              Cancel
+            </button>
+          )}
         </div>
       </form>
     </section>

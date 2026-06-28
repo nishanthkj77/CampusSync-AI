@@ -44,6 +44,18 @@ export const createTimetable = async (
   return response.data.data.timetable
 }
 
+export const updateTimetable = async (
+  timetableId: string,
+  payload: Partial<CreateTimetablePayload>
+): Promise<TimetableEntry> => {
+  const response = await api.put<TimetableSingleResponse>(
+    `/timetable/${timetableId}`,
+    payload
+  )
+
+  return response.data.data.timetable
+}
+
 export const deleteTimetable = async (
   timetableId: string
 ): Promise<TimetableEntry> => {

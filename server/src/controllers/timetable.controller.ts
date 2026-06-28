@@ -7,6 +7,7 @@ import {
   getMyTimetableService,
   updateTimetableService,
 } from "../services/timetable.service";
+import { getTimetableConflictsService } from "../services/timetableConflict.service";
 
 const getErrorMessage = (error: unknown): string => {
   if (error instanceof Error) {
@@ -75,6 +76,26 @@ export const getMyTimetable = async (
         count: result.length,
         timetables: result,
       },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: getErrorMessage(error),
+    });
+  }
+};
+
+export const getTimetableConflicts = async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const result = await getTimetableConflictsService();
+
+    res.status(200).json({
+      success: true,
+      message: "Timetable conflict analysis completed successfully",
+      data: result,
     });
   } catch (error) {
     res.status(500).json({

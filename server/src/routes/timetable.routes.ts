@@ -1,9 +1,10 @@
-import { Router } from "express";
+ import { Router } from "express";
 import {
   createTimetable,
   deleteTimetable,
   getAllTimetables,
   getMyTimetable,
+  getTimetableConflicts,
   updateTimetable,
 } from "../controllers/timetable.controller";
 import { authorizeRoles, protect } from "../middleware/auth.middleware";
@@ -19,6 +20,13 @@ router.get(
   protect,
   authorizeRoles("student", "faculty", "hod", "admin"),
   getMyTimetable
+);
+
+router.get(
+  "/conflicts",
+  protect,
+  authorizeRoles("admin", "hod"),
+  getTimetableConflicts
 );
 
 router.put("/:id", protect, authorizeRoles("admin", "hod"), updateTimetable);

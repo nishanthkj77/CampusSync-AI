@@ -33,6 +33,7 @@ type AdminUsersData = {
 const AdminDashboard = () => {
   const [data, setData] = useState<AdminUsersData | null>(null)
   const [timetables, setTimetables] = useState<TimetableEntry[]>([])
+  const [editingEntry, setEditingEntry] = useState<TimetableEntry | null>(null)
   const [deletingId, setDeletingId] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -61,6 +62,23 @@ const AdminDashboard = () => {
     setTimetables((prev) => [entry, ...prev])
   }
 
+  const handleTimetableEdit = (entry: TimetableEntry) => {
+    setEditingEntry(entry)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleTimetableUpdated = (updatedEntry: TimetableEntry) => {
+    setTimetables((prev) =>
+      prev.map((item) => (item._id === updatedEntry._id ? updatedEntry : item))
+    )
+
+    setEditingEntry(null)
+  }
+
+  const handleCancelEdit = () => {
+    setEditingEntry(null)
+  }
+
   const handleTimetableDelete = async (id: string) => {
     const confirmDelete = window.confirm(
       'Are you sure you want to delete this timetable entry?'
@@ -74,6 +92,10 @@ const AdminDashboard = () => {
       setDeletingId(id)
       await deleteTimetable(id)
       setTimetables((prev) => prev.filter((item) => item._id !== id))
+
+      if (editingEntry?._id === id) {
+        setEditingEntry(null)
+      }
     } catch {
       alert('Unable to delete timetable entry.')
     } finally {
@@ -142,13 +164,19 @@ const AdminDashboard = () => {
         />
       </section>
 
-      <TimetableForm onCreated={handleTimetableCreated} />
+      <TimetableForm
+        onCreated={handleTimetableCreated}
+        editEntry={editingEntry}
+        onUpdated={handleTimetableUpdated}
+        onCancelEdit={handleCancelEdit}
+      />
 
       <TimetableList
         title="Campus Timetable from Backend"
         timetables={timetables}
         canManage
         deletingId={deletingId}
+        onEdit={handleTimetableEdit}
         onDelete={handleTimetableDelete}
       />
 

@@ -1,4 +1,4 @@
- import { CalendarClock, Trash2 } from 'lucide-react'
+ import { CalendarClock, Pencil, Trash2 } from 'lucide-react'
 import type { TimetableEntry } from '../types/timetable.types'
 
 type TimetableListProps = {
@@ -6,6 +6,7 @@ type TimetableListProps = {
   timetables: TimetableEntry[]
   canManage?: boolean
   deletingId?: string
+  onEdit?: (entry: TimetableEntry) => void
   onDelete?: (id: string) => void
 }
 
@@ -18,6 +19,7 @@ const TimetableList = ({
   timetables,
   canManage = false,
   deletingId = '',
+  onEdit,
   onDelete,
 }: TimetableListProps) => {
   return (
@@ -36,7 +38,7 @@ const TimetableList = ({
         </div>
       ) : (
         <div className="mt-6 overflow-x-auto rounded-lg border border-line">
-          <table className="w-full min-w-[1000px] text-left text-sm">
+          <table className="w-full min-w-[1100px] text-left text-sm">
             <thead className="bg-ink-soft text-slate">
               <tr>
                 <th className="px-4 py-3 font-medium">Day</th>
@@ -67,6 +69,7 @@ const TimetableList = ({
                     <p className="font-medium text-paper">
                       {item.courseTitle}
                     </p>
+
                     <p className="mt-1 text-xs text-slate">
                       {item.courseCode}
                     </p>
@@ -84,15 +87,26 @@ const TimetableList = ({
 
                   {canManage && (
                     <td className="px-4 py-3">
-                      <button
-                        type="button"
-                        disabled={deletingId === item._id}
-                        onClick={() => onDelete?.(item._id)}
-                        className="inline-flex items-center gap-2 rounded-md border border-bad/30 bg-bad/10 px-3 py-2 text-xs font-medium text-bad transition hover:bg-bad/20 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        <Trash2 size={14} />
-                        {deletingId === item._id ? 'Deleting...' : 'Delete'}
-                      </button>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => onEdit?.(item)}
+                          className="inline-flex items-center gap-2 rounded-md border border-signal/30 bg-signal-soft px-3 py-2 text-xs font-medium text-signal transition hover:bg-signal-soft/80"
+                        >
+                          <Pencil size={14} />
+                          Edit
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={deletingId === item._id}
+                          onClick={() => onDelete?.(item._id)}
+                          className="inline-flex items-center gap-2 rounded-md border border-bad/30 bg-bad/10 px-3 py-2 text-xs font-medium text-bad transition hover:bg-bad/20 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <Trash2 size={14} />
+                          {deletingId === item._id ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </div>
                     </td>
                   )}
                 </tr>
