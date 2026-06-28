@@ -1,9 +1,10 @@
-import Attendance, {
+ import Attendance, {
   AttendanceStudentRecord,
 } from "../models/attendance.model";
 import { AuthRequest } from "../middleware/auth.middleware";
 
 type AttendanceInput = {
+  timetableId?: string;
   courseCode: string;
   courseTitle: string;
   department: string;
@@ -65,6 +66,15 @@ export const getAttendanceService = async (authReq: AuthRequest) => {
     return Attendance.find({
       isActive: true,
       facultyEmail: authReq.user.email,
+    })
+      .sort({ date: -1 })
+      .populate("createdBy", "name email role");
+  }
+
+  if (authReq.user.role === "hod") {
+    return Attendance.find({
+      isActive: true,
+      department: "Computer Applications",
     })
       .sort({ date: -1 })
       .populate("createdBy", "name email role");

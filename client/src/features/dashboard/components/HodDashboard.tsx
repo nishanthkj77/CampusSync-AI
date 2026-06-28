@@ -1,4 +1,4 @@
- import { useEffect, useState } from 'react'
+﻿ import { useEffect, useState } from 'react'
 import {
   AlertTriangle,
   ClipboardCheck,
@@ -21,7 +21,7 @@ import AnnouncementList from '../../announcements/components/AnnouncementList'
 import { getAnnouncements } from '../../announcements/services/announcement.service'
 import ComplaintList from '../../complaints/components/ComplaintList'
 import { getComplaints } from '../../complaints/services/complaint.service'
-import AttendanceList from '../../attendance/components/AttendanceList'
+import AttendanceSummaryPanel from '../../attendance/components/AttendanceSummaryPanel'
 import { getAttendance } from '../../attendance/services/attendance.service'
 import type {
   TimetableConflictReport,
@@ -252,8 +252,8 @@ const HodDashboard = () => {
         />
       </section>
 
-      <AttendanceList
-        title="Department Attendance Records from Backend"
+      <AttendanceSummaryPanel
+        title="Department Attendance Summary from Backend"
         attendance={attendance}
         canManage
         updatingId={updatingAttendanceId}
