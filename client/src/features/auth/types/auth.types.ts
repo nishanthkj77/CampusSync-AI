@@ -1,5 +1,5 @@
- export type UserRole = 'student' | 'faculty' | 'admin'
-
+ export type UserRole = 'student' | 'faculty' | 'hod' | 'admin'
+ 
 export type AuthUser = {
   id: string
   fullName: string
