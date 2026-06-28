@@ -1,3 +1,4 @@
+ import { useEffect, useState } from 'react'
 import {
   CalendarClock,
   ClipboardCheck,
@@ -5,8 +6,55 @@ import {
   UsersRound,
 } from 'lucide-react'
 import StatsCard from './StatsCard'
+import { getFacultyClasses } from '../services/dashboard.service'
+
+type FacultyClass = {
+  course: string
+  className: string
+  time: string
+  room: string
+}
+
+type FacultyDashboardData = {
+  classes: FacultyClass[]
+}
 
 const FacultyDashboard = () => {
+  const [data, setData] = useState<FacultyDashboardData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const fetchFacultyData = async () => {
+      try {
+        const result = await getFacultyClasses()
+        setData(result)
+      } catch {
+        setError('Unable to load faculty dashboard data.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchFacultyData()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="rounded-xl border border-line bg-panel p-6 text-slate">
+        Loading faculty dashboard...
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-xl border border-bad/30 bg-bad/10 p-6 text-bad">
+        {error}
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
       <section className="rounded-xl border border-line bg-panel p-6">
@@ -25,7 +73,7 @@ const FacultyDashboard = () => {
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         <StatsCard
           title="Classes Today"
-          value="04"
+          value={String(data?.classes.length || 0)}
           description="Assigned teaching sessions"
           icon={CalendarClock}
         />
@@ -54,7 +102,7 @@ const FacultyDashboard = () => {
 
       <section className="rounded-lg border border-line bg-panel p-6">
         <h3 className="font-display text-xl font-semibold text-paper">
-          Faculty Operations
+          Faculty Classes from Backend
         </h3>
 
         <div className="mt-6 overflow-hidden rounded-lg border border-line">
@@ -63,28 +111,20 @@ const FacultyDashboard = () => {
               <tr>
                 <th className="px-4 py-3 font-medium">Course</th>
                 <th className="px-4 py-3 font-medium">Class</th>
-                <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Time</th>
+                <th className="px-4 py-3 font-medium">Room</th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-line">
-              <tr>
-                <td className="px-4 py-3 text-paper">DBMS</td>
-                <td className="px-4 py-3 text-slate">MCA II</td>
-                <td className="px-4 py-3 text-good">Completed</td>
-              </tr>
-
-              <tr>
-                <td className="px-4 py-3 text-paper">AI Lab</td>
-                <td className="px-4 py-3 text-slate">MCA II</td>
-                <td className="px-4 py-3 text-signal">Pending Attendance</td>
-              </tr>
-
-              <tr>
-                <td className="px-4 py-3 text-paper">SPM</td>
-                <td className="px-4 py-3 text-slate">MCA I</td>
-                <td className="px-4 py-3 text-slate">Scheduled</td>
-              </tr>
+              {data?.classes.map((item) => (
+                <tr key={`${item.course}-${item.time}`}>
+                  <td className="px-4 py-3 text-paper">{item.course}</td>
+                  <td className="px-4 py-3 text-slate">{item.className}</td>
+                  <td className="px-4 py-3 text-signal">{item.time}</td>
+                  <td className="px-4 py-3 text-slate">{item.room}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

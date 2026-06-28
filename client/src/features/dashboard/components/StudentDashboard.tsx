@@ -1,3 +1,4 @@
+ import { useEffect, useState } from 'react'
 import {
   CalendarClock,
   ClipboardList,
@@ -5,8 +6,48 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import StatsCard from './StatsCard'
+import { getStudentProfile } from '../services/dashboard.service'
+
+type StudentProfileData = {
+  modules: string[]
+}
 
 const StudentDashboard = () => {
+  const [data, setData] = useState<StudentProfileData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      try {
+        const result = await getStudentProfile()
+        setData(result)
+      } catch {
+        setError('Unable to load student dashboard data.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchStudentData()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="rounded-xl border border-line bg-panel p-6 text-slate">
+        Loading student dashboard...
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-xl border border-bad/30 bg-bad/10 p-6 text-bad">
+        {error}
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
       <section className="rounded-xl border border-line bg-panel p-6">
@@ -20,6 +61,17 @@ const StudentDashboard = () => {
           View your timetable, attendance, complaints, announcements, and
           academic updates in one place.
         </p>
+
+        <div className="mt-5 flex flex-wrap gap-2">
+          {data?.modules.map((module) => (
+            <span
+              key={module}
+              className="rounded-md border border-line bg-ink-soft px-3 py-1.5 text-xs text-slate"
+            >
+              {module}
+            </span>
+          ))}
+        </div>
       </section>
 
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">

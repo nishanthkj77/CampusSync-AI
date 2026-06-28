@@ -1,3 +1,4 @@
+ import { useEffect, useState } from 'react'
 import {
   Activity,
   Building2,
@@ -6,8 +7,57 @@ import {
   UsersRound,
 } from 'lucide-react'
 import StatsCard from './StatsCard'
+import { getAdminUsers } from '../services/dashboard.service'
+
+type AdminUser = {
+  _id: string
+  name: string
+  email: string
+  role: string
+  isActive: boolean
+}
+
+type AdminUsersData = {
+  count: number
+  users: AdminUser[]
+}
 
 const AdminDashboard = () => {
+  const [data, setData] = useState<AdminUsersData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      try {
+        const result = await getAdminUsers()
+        setData(result)
+      } catch {
+        setError('Unable to load admin dashboard data.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchAdminData()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="rounded-xl border border-line bg-panel p-6 text-slate">
+        Loading admin dashboard...
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-xl border border-bad/30 bg-bad/10 p-6 text-bad">
+        {error}
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
       <section className="rounded-xl border border-line bg-panel p-6">
@@ -26,7 +76,7 @@ const AdminDashboard = () => {
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         <StatsCard
           title="Users"
-          value="2.4K"
+          value={String(data?.count || 0)}
           description="Registered campus users"
           icon={UsersRound}
         />
@@ -56,26 +106,33 @@ const AdminDashboard = () => {
       <section className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="rounded-lg border border-line bg-panel p-6">
           <h3 className="font-display text-xl font-semibold text-paper">
-            System Modules
+            Registered Users from Backend
           </h3>
 
-          <div className="mt-6 grid gap-3 md:grid-cols-2">
-            {[
-              'User Management',
-              'Room Allocation',
-              'Department Control',
-              'Announcement System',
-              'Complaint Routing',
-              'AI Engine Monitor',
-            ].map((module) => (
-              <div
-                key={module}
-                className="rounded-md border border-line bg-ink-soft p-4"
-              >
-                <p className="text-sm font-medium text-paper">{module}</p>
-                <p className="mt-1 text-xs text-good">Active</p>
-              </div>
-            ))}
+          <div className="mt-6 overflow-hidden rounded-lg border border-line">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-ink-soft text-slate">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Name</th>
+                  <th className="px-4 py-3 font-medium">Email</th>
+                  <th className="px-4 py-3 font-medium">Role</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-line">
+                {data?.users.slice(0, 8).map((user) => (
+                  <tr key={user._id}>
+                    <td className="px-4 py-3 text-paper">{user.name}</td>
+                    <td className="px-4 py-3 text-slate">{user.email}</td>
+                    <td className="px-4 py-3 text-signal">{user.role}</td>
+                    <td className="px-4 py-3 text-good">
+                      {user.isActive ? 'Active' : 'Inactive'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -97,7 +154,7 @@ const AdminDashboard = () => {
             </p>
 
             <p className="rounded-md bg-signal-soft p-4 text-sm leading-6 text-paper-dim">
-              Next: backend role authorization middleware.
+              Backend role authorization middleware is active.
             </p>
           </div>
         </div>

@@ -1,3 +1,4 @@
+ import { useEffect, useState } from 'react'
 import {
   AlertTriangle,
   BarChart3,
@@ -5,8 +6,54 @@ import {
   UsersRound,
 } from 'lucide-react'
 import StatsCard from './StatsCard'
+import { getHodOverview } from '../services/dashboard.service'
+
+type HodOverviewData = {
+  department: string
+  overview: {
+    facultyCount: number
+    studentCount: number
+    pendingComplaints: number
+    attendanceAverage: string
+  }
+}
 
 const HodDashboard = () => {
+  const [data, setData] = useState<HodOverviewData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const fetchHodData = async () => {
+      try {
+        const result = await getHodOverview()
+        setData(result)
+      } catch {
+        setError('Unable to load HOD dashboard data.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchHodData()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="rounded-xl border border-line bg-panel p-6 text-slate">
+        Loading HOD dashboard...
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-xl border border-bad/30 bg-bad/10 p-6 text-bad">
+        {error}
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
       <section className="rounded-xl border border-line bg-panel p-6">
@@ -20,26 +67,33 @@ const HodDashboard = () => {
           Track department performance, faculty workload, complaints, timetable
           efficiency, and academic risk indicators.
         </p>
+
+        <div className="mt-5 rounded-md border border-line bg-ink-soft px-4 py-3">
+          <p className="text-sm text-slate">Department</p>
+          <p className="mt-1 font-display text-lg font-semibold text-paper">
+            {data?.department}
+          </p>
+        </div>
       </section>
 
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         <StatsCard
           title="Faculty"
-          value="18"
+          value={String(data?.overview.facultyCount || 0)}
           description="Active department faculty"
           icon={UsersRound}
         />
 
         <StatsCard
           title="Department Attendance"
-          value="87%"
+          value={data?.overview.attendanceAverage || '0%'}
           description="Overall student attendance"
           icon={BarChart3}
         />
 
         <StatsCard
           title="Complaints"
-          value="09"
+          value={String(data?.overview.pendingComplaints || 0)}
           description="Department-level pending issues"
           icon={ClipboardList}
         />
@@ -92,7 +146,8 @@ const HodDashboard = () => {
             </p>
 
             <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
-              MCA II attendance has dropped by 4% compared to last week.
+              Department has {data?.overview.studentCount || 0} active students
+              under monitoring.
             </p>
           </div>
         </div>
