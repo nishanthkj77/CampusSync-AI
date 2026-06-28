@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+ import { useEffect, useState } from 'react'
 import {
   AlertTriangle,
   BarChart3,
@@ -9,6 +9,7 @@ import StatsCard from './StatsCard'
 import { getHodOverview } from '../services/dashboard.service'
 import { getAllTimetables } from '../../timetable/services/timetable.service'
 import TimetableList from '../../timetable/components/TimetableList'
+import TimetableForm from '../../timetable/components/TimetableForm'
 import type { TimetableEntry } from '../../timetable/types/timetable.types'
 
 type HodOverviewData = {
@@ -46,6 +47,10 @@ const HodDashboard = () => {
 
     fetchHodData()
   }, [])
+
+  const handleTimetableCreated = (entry: TimetableEntry) => {
+    setTimetables((prev) => [entry, ...prev])
+  }
 
   if (isLoading) {
     return (
@@ -114,6 +119,8 @@ const HodDashboard = () => {
           icon={AlertTriangle}
         />
       </section>
+
+      <TimetableForm onCreated={handleTimetableCreated} />
 
       <TimetableList
         title="Department Timetable from Backend"

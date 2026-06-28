@@ -11,6 +11,7 @@ import StatsCard from './StatsCard'
 import { getAdminUsers } from '../services/dashboard.service'
 import { getAllTimetables } from '../../timetable/services/timetable.service'
 import TimetableList from '../../timetable/components/TimetableList'
+import TimetableForm from '../../timetable/components/TimetableForm'
 import type { TimetableEntry } from '../../timetable/types/timetable.types'
 
 type AdminUser = {
@@ -51,6 +52,10 @@ const AdminDashboard = () => {
 
     fetchAdminData()
   }, [])
+
+  const handleTimetableCreated = (entry: TimetableEntry) => {
+    setTimetables((prev) => [entry, ...prev])
+  }
 
   if (isLoading) {
     return (
@@ -112,6 +117,8 @@ const AdminDashboard = () => {
           icon={Database}
         />
       </section>
+
+      <TimetableForm onCreated={handleTimetableCreated} />
 
       <TimetableList
         title="Campus Timetable from Backend"

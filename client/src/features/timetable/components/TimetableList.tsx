@@ -1,4 +1,4 @@
-import { CalendarClock } from 'lucide-react'
+ import { CalendarClock } from 'lucide-react'
 import type { TimetableEntry } from '../types/timetable.types'
 
 type TimetableListProps = {
@@ -15,6 +15,7 @@ const TimetableList = ({ title, timetables }: TimetableListProps) => {
     <section className="rounded-lg border border-line bg-panel p-6">
       <div className="flex items-center gap-2">
         <CalendarClock size={18} className="text-signal" />
+
         <h3 className="font-display text-xl font-semibold text-paper">
           {title}
         </h3>
@@ -25,8 +26,8 @@ const TimetableList = ({ title, timetables }: TimetableListProps) => {
           No timetable entries available yet.
         </div>
       ) : (
-        <div className="mt-6 overflow-hidden rounded-lg border border-line">
-          <table className="w-full text-left text-sm">
+        <div className="mt-6 overflow-x-auto rounded-lg border border-line">
+          <table className="w-full min-w-[900px] text-left text-sm">
             <thead className="bg-ink-soft text-slate">
               <tr>
                 <th className="px-4 py-3 font-medium">Day</th>
@@ -50,8 +51,12 @@ const TimetableList = ({ title, timetables }: TimetableListProps) => {
                   </td>
 
                   <td className="px-4 py-3">
-                    <p className="font-medium text-paper">{item.courseTitle}</p>
-                    <p className="mt-1 text-xs text-slate">{item.courseCode}</p>
+                    <p className="font-medium text-paper">
+                      {item.courseTitle}
+                    </p>
+                    <p className="mt-1 text-xs text-slate">
+                      {item.courseCode}
+                    </p>
                   </td>
 
                   <td className="px-4 py-3 text-slate">{item.facultyName}</td>

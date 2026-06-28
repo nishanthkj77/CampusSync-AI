@@ -1,4 +1,4 @@
-export type DayOfWeek =
+ export type DayOfWeek =
   | 'monday'
   | 'tuesday'
   | 'wednesday'
@@ -23,4 +23,19 @@ export type TimetableEntry = {
   endTime: string
   sessionType: SessionType
   isActive: boolean
+}
+
+export type CreateTimetablePayload = {
+  courseCode: string
+  courseTitle: string
+  department: string
+  semester: number
+  section: string
+  facultyName: string
+  facultyEmail: string
+  room: string
+  dayOfWeek: DayOfWeek
+  startTime: string
+  endTime: string
+  sessionType: SessionType
 }
