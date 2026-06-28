@@ -1,4 +1,4 @@
- import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   AlertTriangle,
   BarChart3,
@@ -7,6 +7,9 @@ import {
 } from 'lucide-react'
 import StatsCard from './StatsCard'
 import { getHodOverview } from '../services/dashboard.service'
+import { getAllTimetables } from '../../timetable/services/timetable.service'
+import TimetableList from '../../timetable/components/TimetableList'
+import type { TimetableEntry } from '../../timetable/types/timetable.types'
 
 type HodOverviewData = {
   department: string
@@ -20,14 +23,20 @@ type HodOverviewData = {
 
 const HodDashboard = () => {
   const [data, setData] = useState<HodOverviewData | null>(null)
+  const [timetables, setTimetables] = useState<TimetableEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
     const fetchHodData = async () => {
       try {
-        const result = await getHodOverview()
-        setData(result)
+        const [overviewResult, timetableResult] = await Promise.all([
+          getHodOverview(),
+          getAllTimetables(),
+        ])
+
+        setData(overviewResult)
+        setTimetables(timetableResult)
       } catch {
         setError('Unable to load HOD dashboard data.')
       } finally {
@@ -92,9 +101,9 @@ const HodDashboard = () => {
         />
 
         <StatsCard
-          title="Complaints"
-          value={String(data?.overview.pendingComplaints || 0)}
-          description="Department-level pending issues"
+          title="Timetable Entries"
+          value={String(timetables.length)}
+          description="Active academic schedule records"
           icon={ClipboardList}
         />
 
@@ -105,6 +114,11 @@ const HodDashboard = () => {
           icon={AlertTriangle}
         />
       </section>
+
+      <TimetableList
+        title="Department Timetable from Backend"
+        timetables={timetables}
+      />
 
       <section className="grid gap-5 lg:grid-cols-2">
         <div className="rounded-lg border border-line bg-panel p-6">
@@ -142,7 +156,7 @@ const HodDashboard = () => {
 
           <div className="mt-6 space-y-3">
             <p className="rounded-md bg-signal-soft p-4 text-sm leading-6 text-paper-dim">
-              AI recommends shifting one lab session to reduce room conflicts.
+              AI recommends checking room conflicts across timetable entries.
             </p>
 
             <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">

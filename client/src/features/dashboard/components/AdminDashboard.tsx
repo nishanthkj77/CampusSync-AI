@@ -2,12 +2,16 @@
 import {
   Activity,
   Building2,
+  CalendarClock,
   Database,
   ShieldCheck,
   UsersRound,
 } from 'lucide-react'
 import StatsCard from './StatsCard'
 import { getAdminUsers } from '../services/dashboard.service'
+import { getAllTimetables } from '../../timetable/services/timetable.service'
+import TimetableList from '../../timetable/components/TimetableList'
+import type { TimetableEntry } from '../../timetable/types/timetable.types'
 
 type AdminUser = {
   _id: string
@@ -24,14 +28,20 @@ type AdminUsersData = {
 
 const AdminDashboard = () => {
   const [data, setData] = useState<AdminUsersData | null>(null)
+  const [timetables, setTimetables] = useState<TimetableEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        const result = await getAdminUsers()
-        setData(result)
+        const [usersResult, timetableResult] = await Promise.all([
+          getAdminUsers(),
+          getAllTimetables(),
+        ])
+
+        setData(usersResult)
+        setTimetables(timetableResult)
       } catch {
         setError('Unable to load admin dashboard data.')
       } finally {
@@ -69,7 +79,7 @@ const AdminDashboard = () => {
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate">
           Manage users, rooms, campus resources, system analytics, departments,
-          and platform-level operations.
+          timetable records, and platform-level operations.
         </p>
       </section>
 
@@ -82,17 +92,17 @@ const AdminDashboard = () => {
         />
 
         <StatsCard
+          title="Timetable Entries"
+          value={String(timetables.length)}
+          description="Active academic schedule records"
+          icon={CalendarClock}
+        />
+
+        <StatsCard
           title="Rooms"
           value="86"
           description="Classrooms, labs, and halls"
           icon={Building2}
-        />
-
-        <StatsCard
-          title="System Health"
-          value="99%"
-          description="Platform uptime status"
-          icon={Activity}
         />
 
         <StatsCard
@@ -102,6 +112,11 @@ const AdminDashboard = () => {
           icon={Database}
         />
       </section>
+
+      <TimetableList
+        title="Campus Timetable from Backend"
+        timetables={timetables}
+      />
 
       <section className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="rounded-lg border border-line bg-panel p-6">
@@ -156,6 +171,13 @@ const AdminDashboard = () => {
             <p className="rounded-md bg-signal-soft p-4 text-sm leading-6 text-paper-dim">
               Backend role authorization middleware is active.
             </p>
+
+            <div className="rounded-md bg-ink-soft p-4">
+              <div className="flex items-center gap-2 text-signal">
+                <Activity size={16} />
+                <p className="text-sm font-medium">System status stable</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

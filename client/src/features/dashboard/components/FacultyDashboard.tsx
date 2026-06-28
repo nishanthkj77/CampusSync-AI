@@ -7,6 +7,9 @@ import {
 } from 'lucide-react'
 import StatsCard from './StatsCard'
 import { getFacultyClasses } from '../services/dashboard.service'
+import { getMyTimetable } from '../../timetable/services/timetable.service'
+import TimetableList from '../../timetable/components/TimetableList'
+import type { TimetableEntry } from '../../timetable/types/timetable.types'
 
 type FacultyClass = {
   course: string
@@ -21,14 +24,20 @@ type FacultyDashboardData = {
 
 const FacultyDashboard = () => {
   const [data, setData] = useState<FacultyDashboardData | null>(null)
+  const [timetables, setTimetables] = useState<TimetableEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
     const fetchFacultyData = async () => {
       try {
-        const result = await getFacultyClasses()
-        setData(result)
+        const [facultyResult, timetableResult] = await Promise.all([
+          getFacultyClasses(),
+          getMyTimetable(),
+        ])
+
+        setData(facultyResult)
+        setTimetables(timetableResult)
       } catch {
         setError('Unable to load faculty dashboard data.')
       } finally {
@@ -72,9 +81,9 @@ const FacultyDashboard = () => {
 
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         <StatsCard
-          title="Classes Today"
-          value={String(data?.classes.length || 0)}
-          description="Assigned teaching sessions"
+          title="Assigned Timetable"
+          value={String(timetables.length)}
+          description="Classes assigned from backend"
           icon={CalendarClock}
         />
 
@@ -99,6 +108,8 @@ const FacultyDashboard = () => {
           icon={Megaphone}
         />
       </section>
+
+      <TimetableList title="My Assigned Timetable" timetables={timetables} />
 
       <section className="rounded-lg border border-line bg-panel p-6">
         <h3 className="font-display text-xl font-semibold text-paper">

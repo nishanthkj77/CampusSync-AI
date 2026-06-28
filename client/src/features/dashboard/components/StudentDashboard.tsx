@@ -7,21 +7,30 @@ import {
 } from 'lucide-react'
 import StatsCard from './StatsCard'
 import { getStudentProfile } from '../services/dashboard.service'
+import { getMyTimetable } from '../../timetable/services/timetable.service'
+import TimetableList from '../../timetable/components/TimetableList'
+import type { TimetableEntry } from '../../timetable/types/timetable.types'
 
 type StudentProfileData = {
   modules: string[]
 }
 
 const StudentDashboard = () => {
-  const [data, setData] = useState<StudentProfileData | null>(null)
+  const [profileData, setProfileData] = useState<StudentProfileData | null>(null)
+  const [timetables, setTimetables] = useState<TimetableEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        const result = await getStudentProfile()
-        setData(result)
+        const [profileResult, timetableResult] = await Promise.all([
+          getStudentProfile(),
+          getMyTimetable(),
+        ])
+
+        setProfileData(profileResult)
+        setTimetables(timetableResult)
       } catch {
         setError('Unable to load student dashboard data.')
       } finally {
@@ -63,7 +72,7 @@ const StudentDashboard = () => {
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2">
-          {data?.modules.map((module) => (
+          {profileData?.modules.map((module) => (
             <span
               key={module}
               className="rounded-md border border-line bg-ink-soft px-3 py-1.5 text-xs text-slate"
@@ -77,8 +86,8 @@ const StudentDashboard = () => {
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         <StatsCard
           title="Today Classes"
-          value="06"
-          description="Scheduled academic sessions"
+          value={String(timetables.length)}
+          description="Timetable entries from backend"
           icon={CalendarClock}
         />
 
@@ -104,47 +113,22 @@ const StudentDashboard = () => {
         />
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-[1.3fr_0.9fr]">
-        <div className="rounded-lg border border-line bg-panel p-6">
-          <h3 className="font-display text-xl font-semibold text-paper">
-            Today&apos;s Timetable
-          </h3>
+      <TimetableList title="My Timetable from Backend" timetables={timetables} />
 
-          <div className="mt-6 space-y-3">
-            {[
-              ['09:00 AM', 'DBMS', 'Room B-204'],
-              ['11:00 AM', 'Artificial Intelligence Lab', 'Lab 3'],
-              ['01:30 PM', 'Software Project Management', 'Room A-102'],
-            ].map(([time, subject, room]) => (
-              <div
-                key={subject}
-                className="flex items-center justify-between rounded-md bg-ink-soft p-4"
-              >
-                <div>
-                  <p className="text-sm font-semibold text-paper">{subject}</p>
-                  <p className="mt-1 text-xs text-slate">{room}</p>
-                </div>
+      <section className="rounded-lg border border-line bg-panel p-6">
+        <h3 className="font-display text-xl font-semibold text-paper">
+          Smart Alerts
+        </h3>
 
-                <span className="font-mono text-xs text-signal">{time}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <div className="mt-6 space-y-3">
+          <p className="rounded-md bg-signal-soft p-4 text-sm leading-6 text-paper-dim">
+            Your timetable is now loaded from MongoDB through protected backend
+            APIs.
+          </p>
 
-        <div className="rounded-lg border border-line bg-panel p-6">
-          <h3 className="font-display text-xl font-semibold text-paper">
-            Smart Alerts
-          </h3>
-
-          <div className="mt-6 space-y-3">
-            <p className="rounded-md bg-signal-soft p-4 text-sm leading-6 text-paper-dim">
-              Your attendance is strong, but AI Lab attendance needs attention.
-            </p>
-
-            <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
-              New announcement published by MCA department.
-            </p>
-          </div>
+          <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
+            Next AI module will detect timetable conflicts automatically.
+          </p>
         </div>
       </section>
     </div>
