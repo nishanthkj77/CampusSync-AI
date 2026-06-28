@@ -18,11 +18,14 @@ import TimetableConflictPanel from '../../timetable/components/TimetableConflict
 import AnnouncementForm from '../../announcements/components/AnnouncementForm'
 import AnnouncementList from '../../announcements/components/AnnouncementList'
 import { getAnnouncements } from '../../announcements/services/announcement.service'
+import ComplaintList from '../../complaints/components/ComplaintList'
+import { getComplaints } from '../../complaints/services/complaint.service'
 import type {
   TimetableConflictReport,
   TimetableEntry,
 } from '../../timetable/types/timetable.types'
 import type { Announcement } from '../../announcements/types/announcement.types'
+import type { Complaint } from '../../complaints/types/complaint.types'
 
 type HodOverviewData = {
   department: string
@@ -38,10 +41,12 @@ const HodDashboard = () => {
   const [data, setData] = useState<HodOverviewData | null>(null)
   const [timetables, setTimetables] = useState<TimetableEntry[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [complaints, setComplaints] = useState<Complaint[]>([])
   const [conflictReport, setConflictReport] =
     useState<TimetableConflictReport | null>(null)
   const [editingEntry, setEditingEntry] = useState<TimetableEntry | null>(null)
   const [deletingId, setDeletingId] = useState('')
+  const [updatingComplaintId, setUpdatingComplaintId] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -62,17 +67,20 @@ const HodDashboard = () => {
           timetableResult,
           conflictResult,
           announcementResult,
+          complaintResult,
         ] = await Promise.all([
           getHodOverview(),
           getAllTimetables(),
           getTimetableConflicts(),
           getAnnouncements(),
+          getComplaints(),
         ])
 
         setData(overviewResult)
         setTimetables(timetableResult)
         setConflictReport(conflictResult)
         setAnnouncements(announcementResult)
+        setComplaints(complaintResult)
       } catch {
         setError('Unable to load HOD dashboard data.')
       } finally {
@@ -85,6 +93,14 @@ const HodDashboard = () => {
 
   const handleAnnouncementCreated = (announcement: Announcement) => {
     setAnnouncements((prev) => [announcement, ...prev])
+  }
+
+  const handleComplaintUpdated = (updatedComplaint: Complaint) => {
+    setComplaints((prev) =>
+      prev.map((item) =>
+        item._id === updatedComplaint._id ? updatedComplaint : item
+      )
+    )
   }
 
   const handleTimetableCreated = (entry: TimetableEntry) => {
@@ -163,8 +179,8 @@ const HodDashboard = () => {
         </h2>
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate">
-          Track department performance, announcements, faculty workload,
-          timetable efficiency, and academic risk indicators.
+          Track department performance, complaints, announcements, faculty
+          workload, timetable efficiency, and academic risk indicators.
         </p>
 
         <div className="mt-5 rounded-md border border-line bg-ink-soft px-4 py-3">
@@ -175,7 +191,7 @@ const HodDashboard = () => {
         </div>
       </section>
 
-      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
         <StatsCard
           title="Faculty"
           value={String(data?.overview.facultyCount || 0)}
@@ -184,9 +200,9 @@ const HodDashboard = () => {
         />
 
         <StatsCard
-          title="Timetable Entries"
+          title="Timetable"
           value={String(timetables.length)}
-          description="Active academic schedule records"
+          description="Active schedule records"
           icon={ClipboardList}
         />
 
@@ -198,12 +214,28 @@ const HodDashboard = () => {
         />
 
         <StatsCard
+          title="Complaints"
+          value={String(complaints.length)}
+          description="Student service requests"
+          icon={ClipboardList}
+        />
+
+        <StatsCard
           title="AI Conflicts"
           value={String(conflictReport?.conflictCount || 0)}
           description="Detected timetable issues"
           icon={AlertTriangle}
         />
       </section>
+
+      <ComplaintList
+        title="Department Complaint Management from Backend"
+        complaints={complaints}
+        canManage
+        updatingId={updatingComplaintId}
+        setUpdatingId={setUpdatingComplaintId}
+        onUpdated={handleComplaintUpdated}
+      />
 
       <AnnouncementForm onCreated={handleAnnouncementCreated} />
 
@@ -275,8 +307,8 @@ const HodDashboard = () => {
             </p>
 
             <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
-              Department attendance average is{' '}
-              {data?.overview.attendanceAverage || '0%'}.
+              Department complaint management is connected with live MongoDB
+              data.
             </p>
           </div>
         </div>

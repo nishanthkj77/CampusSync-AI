@@ -3,6 +3,7 @@ import {
   Activity,
   Building2,
   CalendarClock,
+  ClipboardList,
   Database,
   ShieldCheck,
   UsersRound,
@@ -20,11 +21,14 @@ import TimetableConflictPanel from '../../timetable/components/TimetableConflict
 import AnnouncementForm from '../../announcements/components/AnnouncementForm'
 import AnnouncementList from '../../announcements/components/AnnouncementList'
 import { getAnnouncements } from '../../announcements/services/announcement.service'
+import ComplaintList from '../../complaints/components/ComplaintList'
+import { getComplaints } from '../../complaints/services/complaint.service'
 import type {
   TimetableConflictReport,
   TimetableEntry,
 } from '../../timetable/types/timetable.types'
 import type { Announcement } from '../../announcements/types/announcement.types'
+import type { Complaint } from '../../complaints/types/complaint.types'
 
 type AdminUser = {
   _id: string
@@ -43,10 +47,12 @@ const AdminDashboard = () => {
   const [data, setData] = useState<AdminUsersData | null>(null)
   const [timetables, setTimetables] = useState<TimetableEntry[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [complaints, setComplaints] = useState<Complaint[]>([])
   const [conflictReport, setConflictReport] =
     useState<TimetableConflictReport | null>(null)
   const [editingEntry, setEditingEntry] = useState<TimetableEntry | null>(null)
   const [deletingId, setDeletingId] = useState('')
+  const [updatingComplaintId, setUpdatingComplaintId] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -67,17 +73,20 @@ const AdminDashboard = () => {
           timetableResult,
           conflictResult,
           announcementResult,
+          complaintResult,
         ] = await Promise.all([
           getAdminUsers(),
           getAllTimetables(),
           getTimetableConflicts(),
           getAnnouncements(),
+          getComplaints(),
         ])
 
         setData(usersResult)
         setTimetables(timetableResult)
         setConflictReport(conflictResult)
         setAnnouncements(announcementResult)
+        setComplaints(complaintResult)
       } catch {
         setError('Unable to load admin dashboard data.')
       } finally {
@@ -90,6 +99,14 @@ const AdminDashboard = () => {
 
   const handleAnnouncementCreated = (announcement: Announcement) => {
     setAnnouncements((prev) => [announcement, ...prev])
+  }
+
+  const handleComplaintUpdated = (updatedComplaint: Complaint) => {
+    setComplaints((prev) =>
+      prev.map((item) =>
+        item._id === updatedComplaint._id ? updatedComplaint : item
+      )
+    )
   }
 
   const handleTimetableCreated = (entry: TimetableEntry) => {
@@ -168,12 +185,12 @@ const AdminDashboard = () => {
         </h2>
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate">
-          Manage users, rooms, campus resources, announcements, timetable
-          records, AI conflict reports, and platform-level operations.
+          Manage users, rooms, campus resources, announcements, complaints,
+          timetable records, AI conflict reports, and platform-level operations.
         </p>
       </section>
 
-      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
         <StatsCard
           title="Users"
           value={String(data?.count || 0)}
@@ -182,9 +199,9 @@ const AdminDashboard = () => {
         />
 
         <StatsCard
-          title="Timetable Entries"
+          title="Timetable"
           value={String(timetables.length)}
-          description="Active academic schedule records"
+          description="Active schedule records"
           icon={CalendarClock}
         />
 
@@ -196,12 +213,28 @@ const AdminDashboard = () => {
         />
 
         <StatsCard
+          title="Complaints"
+          value={String(complaints.length)}
+          description="Student service requests"
+          icon={ClipboardList}
+        />
+
+        <StatsCard
           title="AI Conflicts"
           value={String(conflictReport?.conflictCount || 0)}
           description="Detected timetable issues"
           icon={Activity}
         />
       </section>
+
+      <ComplaintList
+        title="Complaint Management from Backend"
+        complaints={complaints}
+        canManage
+        updatingId={updatingComplaintId}
+        setUpdatingId={setUpdatingComplaintId}
+        onUpdated={handleComplaintUpdated}
+      />
 
       <AnnouncementForm onCreated={handleAnnouncementCreated} />
 
@@ -284,6 +317,10 @@ const AdminDashboard = () => {
             </p>
 
             <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
+              Complaint management is restricted to Admin and HOD users.
+            </p>
+
+            <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
               Announcement visibility is controlled using audience roles.
             </p>
 
@@ -291,7 +328,7 @@ const AdminDashboard = () => {
               <div className="flex items-center gap-2 text-signal">
                 <Database size={16} />
                 <p className="text-sm font-medium">
-                  MongoDB announcement storage active
+                  MongoDB service modules active
                 </p>
               </div>
             </div>

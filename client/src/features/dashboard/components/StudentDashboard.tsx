@@ -12,8 +12,12 @@ import { getMyTimetable } from '../../timetable/services/timetable.service'
 import TimetableList from '../../timetable/components/TimetableList'
 import AnnouncementList from '../../announcements/components/AnnouncementList'
 import { getAnnouncements } from '../../announcements/services/announcement.service'
+import ComplaintForm from '../../complaints/components/ComplaintForm'
+import ComplaintList from '../../complaints/components/ComplaintList'
+import { getComplaints } from '../../complaints/services/complaint.service'
 import type { TimetableEntry } from '../../timetable/types/timetable.types'
 import type { Announcement } from '../../announcements/types/announcement.types'
+import type { Complaint } from '../../complaints/types/complaint.types'
 
 type StudentProfileData = {
   modules: string[]
@@ -23,22 +27,29 @@ const StudentDashboard = () => {
   const [profileData, setProfileData] = useState<StudentProfileData | null>(null)
   const [timetables, setTimetables] = useState<TimetableEntry[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [complaints, setComplaints] = useState<Complaint[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        const [profileResult, timetableResult, announcementResult] =
-          await Promise.all([
-            getStudentProfile(),
-            getMyTimetable(),
-            getAnnouncements(),
-          ])
+        const [
+          profileResult,
+          timetableResult,
+          announcementResult,
+          complaintResult,
+        ] = await Promise.all([
+          getStudentProfile(),
+          getMyTimetable(),
+          getAnnouncements(),
+          getComplaints(),
+        ])
 
         setProfileData(profileResult)
         setTimetables(timetableResult)
         setAnnouncements(announcementResult)
+        setComplaints(complaintResult)
       } catch {
         setError('Unable to load student dashboard data.')
       } finally {
@@ -48,6 +59,10 @@ const StudentDashboard = () => {
 
     fetchStudentData()
   }, [])
+
+  const handleComplaintCreated = (complaint: Complaint) => {
+    setComplaints((prev) => [complaint, ...prev])
+  }
 
   if (isLoading) {
     return (
@@ -75,7 +90,7 @@ const StudentDashboard = () => {
         </h2>
 
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate">
-          View your timetable, announcements, attendance, complaints,
+          View your timetable, announcements, complaints, attendance,
           assignments, and academic updates in one place.
         </p>
 
@@ -107,23 +122,30 @@ const StudentDashboard = () => {
         />
 
         <StatsCard
+          title="Complaints"
+          value={String(complaints.length)}
+          description="Your submitted service requests"
+          icon={ClipboardList}
+        />
+
+        <StatsCard
           title="Attendance"
           value="91%"
           description="Current semester average"
           icon={TrendingUp}
-        />
-
-        <StatsCard
-          title="Assignments"
-          value="04"
-          description="Pending academic submissions"
-          icon={GraduationCap}
         />
       </section>
 
       <AnnouncementList
         title="Student Announcements from Backend"
         announcements={announcements}
+      />
+
+      <ComplaintForm onCreated={handleComplaintCreated} />
+
+      <ComplaintList
+        title="My Complaints from Backend"
+        complaints={complaints}
       />
 
       <TimetableList title="My Timetable from Backend" timetables={timetables} />
@@ -135,13 +157,13 @@ const StudentDashboard = () => {
 
         <div className="mt-6 space-y-3">
           <p className="rounded-md bg-signal-soft p-4 text-sm leading-6 text-paper-dim">
-            Your announcements and timetable are loaded from MongoDB through
-            protected backend APIs.
+            Your announcements, complaints, and timetable are loaded from
+            MongoDB through protected backend APIs.
           </p>
 
           <p className="rounded-md bg-ink-soft p-4 text-sm leading-6 text-slate">
-            Students can view announcements, but only Admin, HOD, and Faculty
-            can create them.
+            Students can raise complaints and track status updates from Admin or
+            HOD.
           </p>
         </div>
       </section>
@@ -155,17 +177,18 @@ const StudentDashboard = () => {
           <div className="rounded-md border border-line bg-ink-soft p-4">
             <div className="flex items-center gap-2 text-signal">
               <ClipboardList size={16} />
-              <p className="text-sm font-semibold">Complaints</p>
+              <p className="text-sm font-semibold">Complaint Tracking</p>
             </div>
 
             <p className="mt-2 text-sm leading-6 text-slate">
-              Complaint tracking module will be added in the next sprint.
+              Complaint module is now connected. You can submit and monitor your
+              requests directly from this dashboard.
             </p>
           </div>
 
           <div className="rounded-md border border-line bg-ink-soft p-4">
             <div className="flex items-center gap-2 text-signal">
-              <TrendingUp size={16} />
+              <GraduationCap size={16} />
               <p className="text-sm font-semibold">Academic Progress</p>
             </div>
 
