@@ -9,7 +9,10 @@ import {
 } from 'lucide-react'
 import StatsCard from './StatsCard'
 import { getAdminUsers } from '../services/dashboard.service'
-import { getAllTimetables } from '../../timetable/services/timetable.service'
+import {
+  deleteTimetable,
+  getAllTimetables,
+} from '../../timetable/services/timetable.service'
 import TimetableList from '../../timetable/components/TimetableList'
 import TimetableForm from '../../timetable/components/TimetableForm'
 import type { TimetableEntry } from '../../timetable/types/timetable.types'
@@ -30,6 +33,7 @@ type AdminUsersData = {
 const AdminDashboard = () => {
   const [data, setData] = useState<AdminUsersData | null>(null)
   const [timetables, setTimetables] = useState<TimetableEntry[]>([])
+  const [deletingId, setDeletingId] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -55,6 +59,26 @@ const AdminDashboard = () => {
 
   const handleTimetableCreated = (entry: TimetableEntry) => {
     setTimetables((prev) => [entry, ...prev])
+  }
+
+  const handleTimetableDelete = async (id: string) => {
+    const confirmDelete = window.confirm(
+      'Are you sure you want to delete this timetable entry?'
+    )
+
+    if (!confirmDelete) {
+      return
+    }
+
+    try {
+      setDeletingId(id)
+      await deleteTimetable(id)
+      setTimetables((prev) => prev.filter((item) => item._id !== id))
+    } catch {
+      alert('Unable to delete timetable entry.')
+    } finally {
+      setDeletingId('')
+    }
   }
 
   if (isLoading) {
@@ -123,6 +147,9 @@ const AdminDashboard = () => {
       <TimetableList
         title="Campus Timetable from Backend"
         timetables={timetables}
+        canManage
+        deletingId={deletingId}
+        onDelete={handleTimetableDelete}
       />
 
       <section className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
@@ -161,6 +188,7 @@ const AdminDashboard = () => {
         <div className="rounded-lg border border-line bg-panel p-6">
           <div className="flex items-center gap-2">
             <ShieldCheck size={18} className="text-signal" />
+
             <h3 className="font-display text-xl font-semibold text-paper">
               Security Overview
             </h3>

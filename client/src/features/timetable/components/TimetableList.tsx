@@ -1,16 +1,25 @@
- import { CalendarClock } from 'lucide-react'
+ import { CalendarClock, Trash2 } from 'lucide-react'
 import type { TimetableEntry } from '../types/timetable.types'
 
 type TimetableListProps = {
   title: string
   timetables: TimetableEntry[]
+  canManage?: boolean
+  deletingId?: string
+  onDelete?: (id: string) => void
 }
 
 const formatDay = (day: string) => {
   return day.charAt(0).toUpperCase() + day.slice(1)
 }
 
-const TimetableList = ({ title, timetables }: TimetableListProps) => {
+const TimetableList = ({
+  title,
+  timetables,
+  canManage = false,
+  deletingId = '',
+  onDelete,
+}: TimetableListProps) => {
   return (
     <section className="rounded-lg border border-line bg-panel p-6">
       <div className="flex items-center gap-2">
@@ -27,7 +36,7 @@ const TimetableList = ({ title, timetables }: TimetableListProps) => {
         </div>
       ) : (
         <div className="mt-6 overflow-x-auto rounded-lg border border-line">
-          <table className="w-full min-w-[900px] text-left text-sm">
+          <table className="w-full min-w-[1000px] text-left text-sm">
             <thead className="bg-ink-soft text-slate">
               <tr>
                 <th className="px-4 py-3 font-medium">Day</th>
@@ -36,6 +45,10 @@ const TimetableList = ({ title, timetables }: TimetableListProps) => {
                 <th className="px-4 py-3 font-medium">Faculty</th>
                 <th className="px-4 py-3 font-medium">Room</th>
                 <th className="px-4 py-3 font-medium">Type</th>
+
+                {canManage && (
+                  <th className="px-4 py-3 font-medium">Actions</th>
+                )}
               </tr>
             </thead>
 
@@ -68,6 +81,20 @@ const TimetableList = ({ title, timetables }: TimetableListProps) => {
                       {item.sessionType}
                     </span>
                   </td>
+
+                  {canManage && (
+                    <td className="px-4 py-3">
+                      <button
+                        type="button"
+                        disabled={deletingId === item._id}
+                        onClick={() => onDelete?.(item._id)}
+                        className="inline-flex items-center gap-2 rounded-md border border-bad/30 bg-bad/10 px-3 py-2 text-xs font-medium text-bad transition hover:bg-bad/20 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <Trash2 size={14} />
+                        {deletingId === item._id ? 'Deleting...' : 'Delete'}
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

@@ -13,7 +13,7 @@ type TimetableListResponse = {
   }
 }
 
-type TimetableCreateResponse = {
+type TimetableSingleResponse = {
   success: boolean
   message: string
   data: {
@@ -36,9 +36,19 @@ export const getAllTimetables = async (): Promise<TimetableEntry[]> => {
 export const createTimetable = async (
   payload: CreateTimetablePayload
 ): Promise<TimetableEntry> => {
-  const response = await api.post<TimetableCreateResponse>(
+  const response = await api.post<TimetableSingleResponse>(
     '/timetable',
     payload
+  )
+
+  return response.data.data.timetable
+}
+
+export const deleteTimetable = async (
+  timetableId: string
+): Promise<TimetableEntry> => {
+  const response = await api.delete<TimetableSingleResponse>(
+    `/timetable/${timetableId}`
   )
 
   return response.data.data.timetable

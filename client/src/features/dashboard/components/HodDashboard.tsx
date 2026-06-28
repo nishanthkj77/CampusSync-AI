@@ -1,4 +1,4 @@
- import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   AlertTriangle,
   BarChart3,
@@ -7,7 +7,10 @@ import {
 } from 'lucide-react'
 import StatsCard from './StatsCard'
 import { getHodOverview } from '../services/dashboard.service'
-import { getAllTimetables } from '../../timetable/services/timetable.service'
+import {
+  deleteTimetable,
+  getAllTimetables,
+} from '../../timetable/services/timetable.service'
 import TimetableList from '../../timetable/components/TimetableList'
 import TimetableForm from '../../timetable/components/TimetableForm'
 import type { TimetableEntry } from '../../timetable/types/timetable.types'
@@ -25,6 +28,7 @@ type HodOverviewData = {
 const HodDashboard = () => {
   const [data, setData] = useState<HodOverviewData | null>(null)
   const [timetables, setTimetables] = useState<TimetableEntry[]>([])
+  const [deletingId, setDeletingId] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -50,6 +54,26 @@ const HodDashboard = () => {
 
   const handleTimetableCreated = (entry: TimetableEntry) => {
     setTimetables((prev) => [entry, ...prev])
+  }
+
+  const handleTimetableDelete = async (id: string) => {
+    const confirmDelete = window.confirm(
+      'Are you sure you want to delete this timetable entry?'
+    )
+
+    if (!confirmDelete) {
+      return
+    }
+
+    try {
+      setDeletingId(id)
+      await deleteTimetable(id)
+      setTimetables((prev) => prev.filter((item) => item._id !== id))
+    } catch {
+      alert('Unable to delete timetable entry.')
+    } finally {
+      setDeletingId('')
+    }
   }
 
   if (isLoading) {
@@ -125,6 +149,9 @@ const HodDashboard = () => {
       <TimetableList
         title="Department Timetable from Backend"
         timetables={timetables}
+        canManage
+        deletingId={deletingId}
+        onDelete={handleTimetableDelete}
       />
 
       <section className="grid gap-5 lg:grid-cols-2">
