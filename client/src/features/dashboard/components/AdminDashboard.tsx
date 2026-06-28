@@ -28,6 +28,7 @@ import AttendanceSummaryPanel from '../../attendance/components/AttendanceSummar
 import { getAttendance } from '../../attendance/services/attendance.service'
 import AITimetableGeneratorPanel from '../../ai-timetable/components/AITimetableGeneratorPanel'
 import ReportsOverviewPanel from '../../reports/components/ReportsOverviewPanel'
+import DemoGuidePanel from './DemoGuidePanel'
 import { getOverviewReport } from '../../reports/services/report.service'
 import type {
   TimetableConflictReport,
@@ -285,6 +286,8 @@ const AdminDashboard = () => {
         title="Campus Reports & Analytics"
         report={report}
       />
+
+      <DemoGuidePanel />
 
       <AITimetableGeneratorPanel onSaved={handleAITimetableSaved} />
 
