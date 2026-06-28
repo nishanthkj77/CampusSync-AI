@@ -1,4 +1,4 @@
-import type { UserRole } from '../types/auth.types'
+ import type { UserRole } from '../types/auth.types'
 
 type RoleSelectorProps = {
   selectedRole: UserRole
@@ -12,31 +12,32 @@ const roles: { label: string; value: UserRole }[] = [
   { label: 'Admin', value: 'admin' },
 ]
 
-const RoleSelector = ({
-  selectedRole,
-  onRoleChange,
-}: RoleSelectorProps) => {
+const RoleSelector = ({ selectedRole, onRoleChange }: RoleSelectorProps) => {
   return (
     <div>
-      <label className="mb-3 block text-sm font-medium text-slate-300">
+      <label className="mb-3 block text-sm font-medium text-slate">
         Select Role
       </label>
 
-      <div className="grid grid-cols-2 gap-3">
-        {roles.map((role) => (
-          <button
-            key={role.value}
-            type="button"
-            onClick={() => onRoleChange(role.value)}
-            className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
-              selectedRole === role.value
-                ? 'border-cyan-400 bg-cyan-400 text-slate-950'
-                : 'border-white/10 bg-white/5 text-slate-300 hover:border-cyan-400/50 hover:text-white'
-            }`}
-          >
-            {role.label}
-          </button>
-        ))}
+      <div className="grid grid-cols-2 gap-2">
+        {roles.map((role) => {
+          const isActive = selectedRole === role.value
+
+          return (
+            <button
+              key={role.value}
+              type="button"
+              onClick={() => onRoleChange(role.value)}
+              className={`rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
+                isActive
+                  ? 'border-signal bg-signal-soft text-signal'
+                  : 'border-line bg-ink-soft text-slate hover:border-paper-dim hover:text-paper'
+              }`}
+            >
+              {role.label}
+            </button>
+          )
+        })}
       </div>
     </div>
   )

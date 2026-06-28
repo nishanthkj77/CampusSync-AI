@@ -1,20 +1,77 @@
- @import "tailwindcss";
+ @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
+@theme {
+  --color-ink: #0e1116;
+  --color-ink-soft: #11151c;
+  --color-panel: #161a22;
+  --color-panel-raised: #1b202a;
+  --color-line: #262b35;
+  --color-line-soft: #1d222b;
+
+  --color-paper: #f6f5f1;
+  --color-paper-dim: #c8cad1;
+  --color-slate: #8b92a0;
+  --color-slate-dim: #5b6170;
+
+  --color-signal: #ff8a3d;
+  --color-signal-soft: #ff8a3d1a;
+  --color-signal-dim: #cc6a26;
+
+  --color-good: #4ade80;
+  --color-warn: #ff8a3d;
+  --color-bad: #f87171;
+
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
-html{
-  scroll-behavior:smooth;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-body{
-  font-family:Inter,system-ui,sans-serif;
-  background:#020617;
+html {
+  scroll-behavior: smooth;
 }
 
-#root{
-  min-height:100vh;
+body {
+  font-family: var(--font-body);
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: var(--color-signal);
+  color: var(--color-ink);
+}
+
+.grid-texture {
+  background-image:
+    linear-gradient(to right, var(--color-line-soft) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-line-soft) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.grid-texture-fine {
+  background-image:
+    linear-gradient(to right, var(--color-line-soft) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-line-soft) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.grid-fade {
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 40%, transparent 85%);
+}
+
+.mono-label {
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }

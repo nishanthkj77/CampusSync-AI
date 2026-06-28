@@ -1,106 +1,121 @@
+ import { ArrowUpRight, CircleDot } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import Badge from '../common/BadgeTemp'
 import Button from '../common/Button'
-import Card from '../common/Card'
 
 const campusMetrics = [
-  ['98%', 'Automation Accuracy'],
-  ['24/7', 'AI Assistance'],
-  ['10K+', 'Campus Users'],
+  ['98%', 'Schedule accuracy'],
+  ['24/7', 'AI assistance'],
+  ['10K+', 'Campus users'],
 ]
 
-const dashboardItems = [
-  ['Today’s Schedule', '5 classes optimized', 'bg-cyan-400'],
-  ['Complaint Queue', '3 urgent issues routed', 'bg-rose-400'],
-  ['Lab Availability', 'AI Lab free at 2:00 PM', 'bg-emerald-400'],
-  ['Attendance Risk', '12 students need attention', 'bg-amber-400'],
+const scheduleRows = [
+  { time: '09:00', course: 'DBMS Lecture', room: 'B-204', status: 'confirmed' },
+  { time: '11:00', course: 'AI Lab Session', room: 'Lab-3', status: 'optimized' },
+  { time: '13:00', course: 'Faculty Review', room: 'Conf-1', status: 'pending' },
+  { time: '15:00', course: 'Hostel Maintenance', room: 'Block-C', status: 'flagged' },
 ]
+
+const statusStyle: Record<string, string> = {
+  confirmed: 'text-good',
+  optimized: 'text-signal',
+  pending: 'text-slate',
+  flagged: 'text-bad',
+}
 
 const Hero = () => {
+  const navigate = useNavigate()
+
   return (
-    <section className="relative overflow-hidden bg-slate-950 px-6 pt-28 text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,#06b6d433,transparent_35%),radial-gradient(circle_at_80%_30%,#3b82f633,transparent_30%),radial-gradient(circle_at_50%_90%,#8b5cf633,transparent_35%)]" />
+    <section className="relative overflow-hidden border-b border-line bg-ink px-6 pt-32">
+      <div className="grid-texture grid-fade absolute inset-0" />
 
-      <div className="relative mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-12 py-16 lg:grid-cols-[1fr_0.95fr]">
-        <div className="max-w-3xl">
-          <Badge>SIH 2026 • Intelligent Campus Management Platform</Badge>
+      <div className="relative mx-auto grid max-w-7xl items-start gap-16 pb-24 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="max-w-2xl">
+          <Badge>SIH 2026 — Campus operations platform</Badge>
 
-          <h1 className="mt-7 text-4xl font-black leading-[1.08] tracking-tight sm:text-5xl md:text-6xl xl:text-7xl">
-            Transform campus operations with{' '}
-            <span className="bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-500 bg-clip-text text-transparent">
-              AI intelligence
-            </span>
+          <h1 className="mt-7 font-display text-4xl font-semibold leading-[1.1] tracking-tight text-paper sm:text-5xl md:text-6xl">
+            One schedule.
+            <br />
+            Every campus operation, <span className="text-signal">in sync.</span>
           </h1>
 
-          <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-            CampusSync AI unifies timetable scheduling, attendance monitoring,
-            complaints, announcements, resource booking, and analytics into one
-            enterprise-grade platform for modern institutions.
+          <p className="mt-6 max-w-xl text-base leading-7 text-slate sm:text-lg">
+            CampusSync AI unifies timetable scheduling, attendance, complaints,
+            announcements, and resource booking into one intelligent campus
+            management platform.
           </p>
 
           <div className="mt-9 flex flex-wrap gap-4">
-            <Button>Explore Platform</Button>
-            <Button variant="secondary">View Architecture</Button>
+            <Button onClick={() => navigate('/login')}>
+              Explore platform <ArrowUpRight size={16} />
+            </Button>
+            <Button variant="secondary" onClick={() => navigate('/register')}>
+              Create account
+            </Button>
           </div>
 
-          <div className="mt-10 grid max-w-2xl grid-cols-3 gap-4">
+          <div className="mt-12 grid max-w-xl grid-cols-3 gap-px overflow-hidden rounded-md border border-line bg-line">
             {campusMetrics.map(([value, label]) => (
-              <div
-                key={label}
-                className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"
-              >
-                <p className="text-2xl font-black text-cyan-300">{value}</p>
-                <p className="mt-1 text-xs text-slate-400 sm:text-sm">{label}</p>
+              <div key={label} className="bg-ink-soft px-4 py-4">
+                <p className="font-display text-2xl font-semibold text-paper">
+                  {value}
+                </p>
+                <p className="mono-label mt-1 text-[11px] text-slate-dim">
+                  {label}
+                </p>
               </div>
             ))}
           </div>
         </div>
 
-        <Card className="relative p-4">
-          <div className="rounded-2xl bg-slate-950/90 p-5">
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-bold">
-                  CampusSync Command Center
-                </h3>
-                <p className="text-sm text-slate-400">
-                  Real-time AI campus operations
-                </p>
-              </div>
-
-              <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300">
-                LIVE
-              </span>
-            </div>
-
-            <div className="grid gap-4">
-              {dashboardItems.map(([title, value, color]) => (
-                <div
-                  key={title}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-4"
-                >
-                  <div className="flex items-start gap-4">
-                    <span className={`mt-1 h-3 w-3 rounded-full ${color}`} />
-
-                    <div>
-                      <p className="font-semibold text-white">{title}</p>
-                      <p className="mt-1 text-sm text-slate-400">{value}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-5 rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4">
-              <p className="text-sm font-semibold text-cyan-300">
-                AI Recommendation
+        <div className="overflow-hidden rounded-lg border border-line bg-panel">
+          <div className="flex items-center justify-between border-b border-line px-5 py-4">
+            <div>
+              <p className="font-display text-sm font-semibold text-paper">
+                Today — Block A Schedule
               </p>
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                Move Lab Session B to 2:00 PM to reduce room conflict and improve
-                faculty availability.
+              <p className="mono-label mt-1 text-[11px] text-slate-dim">
+                Live operations feed
               </p>
             </div>
+
+            <span className="flex items-center gap-1.5 rounded-sm bg-good/10 px-2.5 py-1 text-[11px] font-medium text-good">
+              <CircleDot size={11} />
+              LIVE
+            </span>
           </div>
-        </Card>
+
+          <div className="divide-y divide-line">
+            {scheduleRows.map((row) => (
+              <div
+                key={row.time}
+                className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-5 py-4"
+              >
+                <span className="font-mono text-xs text-slate-dim">
+                  {row.time}
+                </span>
+                <div>
+                  <p className="text-sm font-medium text-paper">{row.course}</p>
+                  <p className="mt-0.5 text-xs text-slate">{row.room}</p>
+                </div>
+                <span className={`mono-label text-[10px] ${statusStyle[row.status]}`}>
+                  {row.status}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="border-t border-line bg-signal-soft px-5 py-4">
+            <p className="mono-label text-[11px] font-medium text-signal">
+              AI recommendation
+            </p>
+            <p className="mt-2 text-sm leading-6 text-paper-dim">
+              Move Lab Session B to 14:00 to resolve the room conflict in Block
+              A and free up faculty for review.
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   )

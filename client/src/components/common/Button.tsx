@@ -1,8 +1,8 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+ import type { ButtonHTMLAttributes, ReactNode } from 'react'
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode
-  variant?: 'primary' | 'secondary'
+  variant?: 'primary' | 'secondary' | 'ghost'
 }
 
 const Button = ({
@@ -12,13 +12,13 @@ const Button = ({
   ...props
 }: ButtonProps) => {
   const baseStyle =
-    'rounded-xl px-7 py-3 font-bold transition hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-60'
+    'inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-semibold font-display transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50'
 
   const variants = {
-    primary:
-      'bg-cyan-400 text-slate-950 shadow-lg shadow-cyan-400/25 hover:bg-cyan-300',
+    primary: 'bg-signal text-ink hover:bg-[#ff9c5c] active:bg-signal-dim',
     secondary:
-      'border border-white/20 bg-white/5 text-white backdrop-blur hover:bg-white/10',
+      'border border-line bg-transparent text-paper hover:border-paper-dim hover:bg-panel',
+    ghost: 'text-slate hover:text-paper',
   }
 
   return (

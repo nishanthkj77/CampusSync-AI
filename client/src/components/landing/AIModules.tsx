@@ -1,68 +1,66 @@
-import Card from '../common/Card'
+ import { BrainCircuit, Clock3, ShieldCheck, Sparkles } from 'lucide-react'
 import SectionTitle from '../common/SectionTitle'
 
 const modules = [
   {
-    title: 'AI Smart Scheduling',
+    title: 'Timetable Optimizer',
     description:
-      'Automatically generates conflict-free class schedules by optimizing faculty, classrooms, and academic resources.',
+      'Detects clashes between faculty, rooms, labs, and courses before schedules are published.',
+    icon: Clock3,
   },
   {
-    title: 'AI Attendance Insights',
+    title: 'Complaint Classifier',
     description:
-      'Identifies attendance trends, detects at-risk students, and provides early intervention recommendations.',
+      'Understands complaint category and urgency, then routes it to the correct authority.',
+    icon: BrainCircuit,
   },
   {
-    title: 'Complaint Intelligence',
+    title: 'Risk Insights',
     description:
-      'Analyzes complaints, detects urgency, and routes them to the appropriate department automatically.',
+      'Highlights attendance issues, repeated complaints, and service delays for early action.',
+    icon: ShieldCheck,
   },
   {
-    title: 'Predictive Analytics',
+    title: 'Campus Assistant',
     description:
-      'Provides administrators with insights into campus operations using historical and real-time data.',
-  },
-  {
-    title: 'Resource Optimization',
-    description:
-      'Optimizes the usage of classrooms, laboratories, seminar halls, and campus facilities.',
-  },
-  {
-    title: 'Campus AI Assistant',
-    description:
-      'A virtual assistant that answers student and faculty queries 24/7 using natural language processing.',
+      'Provides quick responses for students, faculty, and admin users through AI-driven support.',
+    icon: Sparkles,
   },
 ]
 
 const AIModules = () => {
   return (
-    <section className="bg-slate-950 px-6 py-24">
+    <section className="bg-ink px-6 py-24">
       <div className="mx-auto max-w-7xl">
         <SectionTitle
-          badge="AI Modules"
-          title="Intelligence at the core of CampusSync AI"
-          description="Artificial Intelligence powers every major decision—from scheduling and attendance to analytics and student support."
+          badge="AI modules"
+          title="Built with intelligence at the core"
+          description="CampusSync AI is not only a management portal. It uses AI-driven assistance to reduce manual effort and improve campus decisions."
         />
 
-        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {modules.map((module) => (
-            <Card
-              key={module.title}
-              className="transition duration-300 hover:-translate-y-2 hover:border-cyan-400/30"
-            >
-              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-400/10 text-2xl">
-                🤖
-              </div>
+        <div className="mt-16 grid gap-6 md:grid-cols-2">
+          {modules.map((module) => {
+            const Icon = module.icon
 
-              <h3 className="text-xl font-bold text-white">
-                {module.title}
-              </h3>
+            return (
+              <article
+                key={module.title}
+                className="rounded-lg border border-line bg-panel p-7 transition-colors hover:bg-panel-raised"
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-md bg-signal-soft text-signal">
+                  <Icon size={22} />
+                </div>
 
-              <p className="mt-4 text-sm leading-7 text-slate-400">
-                {module.description}
-              </p>
-            </Card>
-          ))}
+                <h3 className="mt-6 font-display text-xl font-semibold text-paper">
+                  {module.title}
+                </h3>
+
+                <p className="mt-3 text-sm leading-6 text-slate">
+                  {module.description}
+                </p>
+              </article>
+            )
+          })}
         </div>
       </div>
     </section>

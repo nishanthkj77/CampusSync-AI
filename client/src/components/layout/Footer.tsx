@@ -1,18 +1,20 @@
+ import { Grid2x2 } from 'lucide-react'
+
 const Footer = () => {
   return (
-    <footer className="border-t border-white/10 bg-slate-950 px-6 py-10 text-white">
+    <footer className="border-t border-line bg-ink px-6 py-10">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 text-center md:flex-row md:items-center md:justify-between md:text-left">
-        <div>
-          <h3 className="text-xl font-bold">
-            CampusSync <span className="text-cyan-400">AI</span>
-          </h3>
-          <p className="mt-2 text-sm text-slate-400">
-            Intelligent Campus Management Platform for SIH 2026.
-          </p>
+        <div className="flex items-center justify-center gap-2.5 md:justify-start">
+          <span className="flex h-6 w-6 items-center justify-center rounded-sm bg-signal text-ink">
+            <Grid2x2 size={14} strokeWidth={2.5} />
+          </span>
+          <span className="font-display text-base font-semibold text-paper">
+            CampusSync AI
+          </span>
         </div>
 
-        <p className="text-sm text-slate-500">
-          © 2026 CampusSync AI. Built for Smart India Hackathon.
+        <p className="mono-label text-xs text-slate-dim">
+          © 2026 CampusSync AI — Built for Smart India Hackathon
         </p>
       </div>
     </footer>

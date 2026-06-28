@@ -1,48 +1,34 @@
-import Card from '../common/Card'
-import SectionTitle from '../common/SectionTitle'
-
-const stats = [
+ const stats = [
   {
-    value: '10K+',
-    title: 'Students',
+    value: '40%',
+    label: 'less timetable conflict',
   },
   {
-    value: '98%',
-    title: 'Automation',
+    value: '3x',
+    label: 'faster complaint routing',
   },
   {
     value: '24/7',
-    title: 'AI Assistant',
+    label: 'campus service visibility',
   },
   {
-    value: '150+',
-    title: 'Campus Resources',
+    value: '100%',
+    label: 'role-based dashboard access',
   },
 ]
 
 const Statistics = () => {
   return (
-    <section id="stats" className="bg-slate-900 px-6 py-24">
-      <div className="mx-auto max-w-7xl">
-        <SectionTitle
-          badge="Platform Impact"
-          title="Designed for modern educational institutions"
-          description="CampusSync AI helps institutions automate operations, improve student services, and make data-driven decisions."
-        />
-
-        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat) => (
-            <Card key={stat.title} className="text-center">
-              <h3 className="text-5xl font-black text-cyan-400">
-                {stat.value}
-              </h3>
-
-              <p className="mt-4 text-lg font-semibold text-white">
-                {stat.title}
-              </p>
-            </Card>
-          ))}
-        </div>
+    <section id="stats" className="border-y border-line bg-panel px-6 py-16">
+      <div className="mx-auto grid max-w-7xl gap-px overflow-hidden rounded-lg border border-line bg-line md:grid-cols-4">
+        {stats.map((stat) => (
+          <div key={stat.label} className="bg-ink px-6 py-8 text-center">
+            <p className="font-display text-4xl font-semibold text-signal">
+              {stat.value}
+            </p>
+            <p className="mono-label mt-3 text-xs text-slate">{stat.label}</p>
+          </div>
+        ))}
       </div>
     </section>
   )

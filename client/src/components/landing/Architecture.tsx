@@ -1,58 +1,57 @@
-import Card from '../common/Card'
-import SectionTitle from '../common/SectionTitle'
+ import SectionTitle from '../common/SectionTitle'
 
 const layers = [
   {
-    title: 'Frontend',
-    tech: 'React + TypeScript',
-    description:
-      'Responsive interface for students, faculty, and administrators.',
+    name: 'Frontend',
+    tech: 'React + TypeScript + Tailwind',
+    description: 'Role-based UI for students, faculty, HOD, and administrators.',
   },
   {
-    title: 'Backend',
-    tech: 'Node.js + Express',
-    description:
-      'REST APIs, authentication, role-based access, and business logic.',
+    name: 'Backend',
+    tech: 'Express + TypeScript',
+    description: 'REST APIs for authentication, users, academic operations, and workflows.',
   },
   {
-    title: 'AI Engine',
-    tech: 'Python',
-    description:
-      'AI scheduling, complaint priority detection, and predictive analytics.',
+    name: 'Database',
+    tech: 'MongoDB + Mongoose',
+    description: 'Stores users, schedules, complaints, attendance, rooms, and announcements.',
   },
   {
-    title: 'Database',
-    tech: 'MongoDB',
-    description:
-      'Stores users, attendance, schedules, complaints, and campus data.',
+    name: 'AI Engine',
+    tech: 'Python / ML services',
+    description: 'Future module for timetable optimization, complaint classification, and insights.',
   },
 ]
 
 const Architecture = () => {
   return (
-    <section id="architecture" className="bg-slate-900 px-6 py-24 text-white">
+    <section id="architecture" className="border-t border-line bg-ink px-6 py-24">
       <div className="mx-auto max-w-7xl">
         <SectionTitle
-          badge="Enterprise Architecture"
-          title="Scalable system design for a real campus"
-          description="CampusSync AI is structured into separate layers so the platform stays secure, maintainable, and ready for future expansion."
+          badge="System architecture"
+          title="Clean structure for a real SIH project"
+          description="The platform is designed as a modular full-stack system so every major feature can grow without breaking the rest of the project."
         />
 
-        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {layers.map((layer) => (
-            <Card key={layer.title} className="text-center">
-              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300">
-                ⚙️
+        <div className="mt-16 grid gap-4">
+          {layers.map((layer, index) => (
+            <div
+              key={layer.name}
+              className="grid gap-5 rounded-lg border border-line bg-panel p-6 md:grid-cols-[120px_1fr_1.4fr]"
+            >
+              <p className="mono-label text-xs text-signal">
+                Layer {index + 1}
+              </p>
+
+              <div>
+                <h3 className="font-display text-xl font-semibold text-paper">
+                  {layer.name}
+                </h3>
+                <p className="mt-1 text-sm text-slate">{layer.tech}</p>
               </div>
 
-              <h3 className="text-xl font-bold text-white">{layer.title}</h3>
-
-              <p className="mt-2 font-semibold text-cyan-300">{layer.tech}</p>
-
-              <p className="mt-4 text-sm leading-7 text-slate-400">
-                {layer.description}
-              </p>
-            </Card>
+              <p className="text-sm leading-6 text-slate">{layer.description}</p>
+            </div>
           ))}
         </div>
       </div>

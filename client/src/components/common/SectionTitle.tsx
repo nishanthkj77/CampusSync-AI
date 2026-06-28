@@ -1,4 +1,4 @@
-type SectionTitleProps = {
+ type SectionTitleProps = {
   badge: string
   title: string
   description: string
@@ -7,17 +7,13 @@ type SectionTitleProps = {
 const SectionTitle = ({ badge, title, description }: SectionTitleProps) => {
   return (
     <div className="mx-auto max-w-3xl text-center">
-      <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">
-        {badge}
-      </p>
+      <p className="mono-label text-xs font-medium text-signal">{badge}</p>
 
-      <h2 className="mt-4 text-4xl font-black tracking-tight text-white md:text-5xl">
+      <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-paper md:text-4xl">
         {title}
       </h2>
 
-      <p className="mt-5 text-lg leading-8 text-slate-400">
-        {description}
-      </p>
+      <p className="mt-5 text-base leading-7 text-slate">{description}</p>
     </div>
   )
 }

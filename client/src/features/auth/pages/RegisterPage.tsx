@@ -1,5 +1,6 @@
  import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { ArrowRight, AlertCircle } from 'lucide-react'
 import AuthLayout from '../components/AuthLayout'
 import RoleSelector from '../components/RoleSelector'
 import type { UserRole } from '../types/auth.types'
@@ -20,6 +21,7 @@ const RegisterPage = () => {
 
   const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
     setError('')
     setIsLoading(true)
 
@@ -36,7 +38,7 @@ const RegisterPage = () => {
 
       navigate('/dashboard')
     } catch {
-      setError('Registration failed. Email may already exist.')
+      setError('Registration failed. This email may already be registered.')
     } finally {
       setIsLoading(false)
     }
@@ -45,19 +47,20 @@ const RegisterPage = () => {
   return (
     <AuthLayout
       title="Create account"
-      subtitle="Register to join the CampusSync AI platform."
+      subtitle="Register as student, faculty, HOD, or admin to join CampusSync AI."
     >
       <form onSubmit={handleRegister} className="space-y-5">
         <RoleSelector selectedRole={role} onRoleChange={setRole} />
 
         {error && (
-          <div className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-            {error}
+          <div className="flex gap-3 rounded-md border border-bad/30 bg-bad/10 px-4 py-3 text-sm leading-6 text-bad">
+            <AlertCircle size={18} className="mt-0.5 shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-300">
+          <label className="mb-2 block text-sm font-medium text-slate">
             Full Name
           </label>
           <input
@@ -65,13 +68,13 @@ const RegisterPage = () => {
             onChange={(event) => setFullName(event.target.value)}
             type="text"
             placeholder="Enter your full name"
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400"
+            className="w-full rounded-md border border-line bg-ink-soft px-4 py-3 text-paper outline-none transition placeholder:text-slate-dim focus:border-signal"
             required
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-300">
+          <label className="mb-2 block text-sm font-medium text-slate">
             Email Address
           </label>
           <input
@@ -79,13 +82,13 @@ const RegisterPage = () => {
             onChange={(event) => setEmail(event.target.value)}
             type="email"
             placeholder="name@campus.edu"
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400"
+            className="w-full rounded-md border border-line bg-ink-soft px-4 py-3 text-paper outline-none transition placeholder:text-slate-dim focus:border-signal"
             required
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-300">
+          <label className="mb-2 block text-sm font-medium text-slate">
             Password
           </label>
           <input
@@ -93,7 +96,8 @@ const RegisterPage = () => {
             onChange={(event) => setPassword(event.target.value)}
             type="password"
             placeholder="Create a password"
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400"
+            minLength={6}
+            className="w-full rounded-md border border-line bg-ink-soft px-4 py-3 text-paper outline-none transition placeholder:text-slate-dim focus:border-signal"
             required
           />
         </div>
@@ -101,16 +105,17 @@ const RegisterPage = () => {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full rounded-xl bg-cyan-400 px-6 py-3 font-bold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-signal px-6 py-3 font-display text-sm font-semibold text-ink transition hover:bg-[#ff9c5c] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isLoading ? 'Creating account...' : 'Create Account'}
+          {!isLoading && <ArrowRight size={16} />}
         </button>
 
-        <p className="text-center text-sm text-slate-400">
+        <p className="text-center text-sm text-slate">
           Already have an account?{' '}
           <Link
             to="/login"
-            className="font-semibold text-cyan-300 hover:text-cyan-200"
+            className="font-semibold text-signal transition hover:text-[#ff9c5c]"
           >
             Login
           </Link>

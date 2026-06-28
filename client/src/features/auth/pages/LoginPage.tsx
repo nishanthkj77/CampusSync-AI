@@ -1,5 +1,6 @@
  import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { ArrowRight, AlertCircle } from 'lucide-react'
 import AuthLayout from '../components/AuthLayout'
 import RoleSelector from '../components/RoleSelector'
 import type { UserRole } from '../types/auth.types'
@@ -19,6 +20,7 @@ const LoginPage = () => {
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
     setError('')
     setIsLoading(true)
 
@@ -28,12 +30,17 @@ const LoginPage = () => {
         password,
       })
 
+      if (result.user.role !== role) {
+        setError(`This account is registered as ${result.user.role}. Please select the correct role.`)
+        return
+      }
+
       setToken(result.token)
       login(result.user, result.token)
 
       navigate('/dashboard')
     } catch {
-      setError('Invalid email or password')
+      setError('Invalid email or password. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -42,19 +49,20 @@ const LoginPage = () => {
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Login to access your CampusSync AI dashboard."
+      subtitle="Login using your campus account to access your role-based dashboard."
     >
-      <form onSubmit={handleLogin} className="space-y-6">
+      <form onSubmit={handleLogin} className="space-y-5">
         <RoleSelector selectedRole={role} onRoleChange={setRole} />
 
         {error && (
-          <div className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-            {error}
+          <div className="flex gap-3 rounded-md border border-bad/30 bg-bad/10 px-4 py-3 text-sm leading-6 text-bad">
+            <AlertCircle size={18} className="mt-0.5 shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-300">
+          <label className="mb-2 block text-sm font-medium text-slate">
             Email Address
           </label>
           <input
@@ -62,13 +70,13 @@ const LoginPage = () => {
             onChange={(event) => setEmail(event.target.value)}
             type="email"
             placeholder="student@campus.edu"
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400"
+            className="w-full rounded-md border border-line bg-ink-soft px-4 py-3 text-paper outline-none transition placeholder:text-slate-dim focus:border-signal"
             required
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-300">
+          <label className="mb-2 block text-sm font-medium text-slate">
             Password
           </label>
           <input
@@ -76,7 +84,7 @@ const LoginPage = () => {
             onChange={(event) => setPassword(event.target.value)}
             type="password"
             placeholder="Enter your password"
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400"
+            className="w-full rounded-md border border-line bg-ink-soft px-4 py-3 text-paper outline-none transition placeholder:text-slate-dim focus:border-signal"
             required
           />
         </div>
@@ -84,16 +92,17 @@ const LoginPage = () => {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full rounded-xl bg-cyan-400 px-6 py-3 font-bold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-signal px-6 py-3 font-display text-sm font-semibold text-ink transition hover:bg-[#ff9c5c] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isLoading ? 'Logging in...' : 'Login to Dashboard'}
+          {!isLoading && <ArrowRight size={16} />}
         </button>
 
-        <p className="text-center text-sm text-slate-400">
+        <p className="text-center text-sm text-slate">
           New to CampusSync AI?{' '}
           <Link
             to="/register"
-            className="font-semibold text-cyan-300 hover:text-cyan-200"
+            className="font-semibold text-signal transition hover:text-[#ff9c5c]"
           >
             Create an account
           </Link>

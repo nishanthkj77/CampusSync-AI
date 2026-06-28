@@ -1,61 +1,83 @@
-import Card from '../common/Card'
+ import {
+  CalendarClock,
+  LineChart,
+  MessageSquareWarning,
+  DoorOpen,
+  Megaphone,
+  BarChart3,
+} from 'lucide-react'
 import SectionTitle from '../common/SectionTitle'
 
 const features = [
   {
-    title: 'Smart Timetable Scheduling',
+    title: 'Smart timetable scheduling',
     description:
-      'AI-assisted academic scheduling that reduces timetable conflicts and improves faculty and room allocation.',
+      'AI-assisted academic scheduling that reduces conflicts and improves faculty and room allocation.',
+    icon: CalendarClock,
   },
   {
-    title: 'Attendance Intelligence',
+    title: 'Attendance intelligence',
     description:
-      'Track attendance patterns, identify risk students, and support early intervention using analytics.',
+      'Track attendance patterns, identify at-risk students, and support early intervention with analytics.',
+    icon: LineChart,
   },
   {
-    title: 'Complaint Management',
+    title: 'Complaint management',
     description:
       'Route student complaints to the right department with priority detection and status tracking.',
+    icon: MessageSquareWarning,
   },
   {
-    title: 'Resource Booking',
+    title: 'Resource booking',
     description:
       'Manage classrooms, labs, halls, and equipment availability from one centralized system.',
+    icon: DoorOpen,
   },
   {
-    title: 'Campus Announcements',
+    title: 'Campus announcements',
     description:
-      'Publish important updates, notices, events, and emergency alerts instantly across the campus.',
+      'Publish updates, notices, events, and emergency alerts instantly across the campus.',
+    icon: Megaphone,
   },
   {
-    title: 'Analytics Dashboard',
+    title: 'Analytics dashboard',
     description:
-      'Give administrators real-time insights into campus performance, usage, and student services.',
+      'Give administrators real-time insight into campus performance, usage, and student services.',
+    icon: BarChart3,
   },
 ]
 
 const Features = () => {
   return (
-    <section id="features" className="bg-slate-950 px-6 py-24 text-white">
+    <section id="features" className="bg-ink px-6 py-24">
       <div className="mx-auto max-w-7xl">
         <SectionTitle
-          badge="Core Features"
+          badge="Core features"
           title="Everything a smart campus needs"
-          description="CampusSync AI brings academic operations, student services, and administrative intelligence into one connected digital platform."
+          description="CampusSync AI brings academic operations, student services, and administrative intelligence into one connected system."
         />
 
-        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => (
-            <Card key={feature.title} className="transition hover:-translate-y-2">
-              <div className="mb-5 h-12 w-12 rounded-2xl bg-cyan-400/10" />
+        <div className="mt-16 grid gap-px overflow-hidden rounded-lg border border-line bg-line md:grid-cols-2 lg:grid-cols-3">
+          {features.map((feature) => {
+            const Icon = feature.icon
 
-              <h3 className="text-xl font-bold text-white">{feature.title}</h3>
+            return (
+              <div
+                key={feature.title}
+                className="group bg-ink-soft p-7 transition-colors duration-150 hover:bg-panel"
+              >
+                <Icon size={22} strokeWidth={1.75} className="text-signal" />
 
-              <p className="mt-4 text-sm leading-7 text-slate-400">
-                {feature.description}
-              </p>
-            </Card>
-          ))}
+                <h3 className="mt-5 font-display text-lg font-semibold text-paper">
+                  {feature.title}
+                </h3>
+
+                <p className="mt-3 text-sm leading-6 text-slate">
+                  {feature.description}
+                </p>
+              </div>
+            )
+          })}
         </div>
       </div>
     </section>

@@ -1,22 +1,28 @@
+ import { ArrowRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import Button from '../common/Button'
 
 const CTA = () => {
+  const navigate = useNavigate()
+
   return (
-    <section className="bg-slate-950 px-6 py-24 text-white">
-      <div className="mx-auto max-w-5xl rounded-3xl border border-cyan-400/20 bg-cyan-400/10 px-6 py-16 text-center shadow-2xl shadow-cyan-500/10 backdrop-blur-xl">
-        <h2 className="text-4xl font-black tracking-tight md:text-5xl">
-          Ready to build the future of campus management?
+    <section className="bg-ink px-6 py-24">
+      <div className="mx-auto max-w-5xl rounded-xl border border-line bg-panel p-10 text-center md:p-14">
+        <p className="mono-label text-xs text-signal">Ready for demo</p>
+
+        <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-paper md:text-5xl">
+          Start managing the campus from one intelligent dashboard.
         </h2>
 
-        <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-          CampusSync AI is designed to help institutions automate operations,
-          improve student support, and make smarter decisions with AI-powered
-          insights.
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate">
+          Login as student, faculty, HOD, or admin and experience the foundation
+          of CampusSync AI.
         </p>
 
-        <div className="mt-10 flex flex-wrap justify-center gap-4">
-          <Button>Start Demo</Button>
-          <Button variant="secondary">View Project Plan</Button>
+        <div className="mt-8 flex justify-center">
+          <Button onClick={() => navigate('/login')}>
+            Launch CampusSync AI <ArrowRight size={16} />
+          </Button>
         </div>
       </div>
     </section>

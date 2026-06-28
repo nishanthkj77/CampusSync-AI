@@ -1,21 +1,28 @@
-import { Link } from 'react-router-dom'
+ import { Link } from 'react-router-dom'
+import { Grid2x2 } from 'lucide-react'
 
 const Navbar = () => {
   return (
-    <header className="fixed left-0 top-0 z-50 w-full border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+    <header className="fixed left-0 top-0 z-50 w-full border-b border-line bg-ink/90 backdrop-blur-md">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <Link to="/" className="text-xl font-bold tracking-tight">
-          CampusSync <span className="text-cyan-400">AI</span>
+        <Link
+          to="/"
+          className="flex items-center gap-2.5 font-display text-lg font-semibold tracking-tight text-paper"
+        >
+          <span className="flex h-7 w-7 items-center justify-center rounded-sm bg-signal text-ink">
+            <Grid2x2 size={16} strokeWidth={2.5} />
+          </span>
+          CampusSync AI
         </Link>
 
-        <div className="hidden items-center gap-8 text-sm text-slate-300 md:flex">
-          <a href="/#features" className="transition hover:text-cyan-300">
+        <div className="hidden items-center gap-8 text-sm text-slate md:flex">
+          <a href="/#features" className="transition-colors hover:text-paper">
             Features
           </a>
-          <a href="/#stats" className="transition hover:text-cyan-300">
+          <a href="/#stats" className="transition-colors hover:text-paper">
             Impact
           </a>
-          <a href="/#architecture" className="transition hover:text-cyan-300">
+          <a href="/#architecture" className="transition-colors hover:text-paper">
             Architecture
           </a>
         </div>
@@ -23,15 +30,15 @@ const Navbar = () => {
         <div className="flex items-center gap-3">
           <Link
             to="/login"
-            className="hidden rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10 sm:inline-flex"
+            className="hidden rounded-md px-4 py-2 text-sm font-medium text-slate transition-colors hover:text-paper sm:inline-flex"
           >
-            Login
+            Log in
           </Link>
           <Link
             to="/login"
-            className="rounded-full bg-cyan-400 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+            className="rounded-md bg-signal px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-[#ff9c5c]"
           >
-            Launch Demo
+            Launch demo
           </Link>
         </div>
       </nav>
