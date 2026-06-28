@@ -12,6 +12,8 @@ import complaintRoutes from "./complaint.routes";
 import attendanceRoutes from "./attendance.routes";
 import riskRoutes from "./risk.routes";
 import aiTimetableRoutes from "./aiTimetable.routes";
+import reportRoutes from "./report.routes";
+
 
 const router = Router();
 
@@ -28,5 +30,6 @@ router.use("/complaints", complaintRoutes);
 router.use("/attendance", attendanceRoutes);
 router.use("/risk", riskRoutes);
 router.use("/ai-timetable", aiTimetableRoutes);
+router.use("/reports", reportRoutes);
 
 export default router;
